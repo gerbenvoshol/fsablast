@@ -11,39 +11,37 @@
 int main(int argc, char* argv[])
 {
 	char *filename, *sequence, *description, *sequenceCopy;
-    int sequenceLength;
+	int sequenceLength;
 
 	// User must provide FASTA format file at command line
-	if (argc < 2)
-	{
+	if (argc < 2) {
 		fprintf(stderr, "Useage: dust <FASTA file>\n");
 		exit(-1);
 	}
 	filename = argv[1];
 
-    // Initialize encoding routines
-    encoding_initialize(encoding_nucleotide);
+	// Initialize encoding routines
+	encoding_initialize(encoding_nucleotide);
 
-    // Open FASTA file for reading
+	// Open FASTA file for reading
 	readFasta_open(filename);
 
-    // Read each sequence from the file
-    while (readFasta_readSequence())
-	{
+	// Read each sequence from the file
+	while (readFasta_readSequence()) {
 		// Get sequence just read
 		sequence = readFasta_sequenceBuffer;
 		description = readFasta_descriptionBuffer;
-        sequenceLength = readFasta_sequenceLength;
+		sequenceLength = readFasta_sequenceLength;
 
-        // Make in-memory copy of it
-        sequenceCopy = (char*)global_malloc(sequenceLength);
-        strcpy(sequenceCopy, sequence);
+		// Make in-memory copy of it
+		sequenceCopy = (char*)global_malloc(sequenceLength);
+		strcpy(sequenceCopy, sequence);
 
 		// Perform dust filtering
-        dust_dustSequence(sequence);
+		dust_dustSequence(sequence);
 
-        // Print description and filtering sequence
-        printf(">%s\n%s\n", description, sequence);
-    }
+		// Print description and filtering sequence
+		printf(">%s\n%s\n", description, sequence);
+	}
 }
 

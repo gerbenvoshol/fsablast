@@ -12,30 +12,30 @@ int4 ungappedExtension_tableMatchesReward;
 
 // Prototypes
 struct coordinate ungappedExtension_findNucleotideSeed(struct ungappedExtension* ungappedExtension,
-                                                       struct PSSMatrix PSSMatrix, unsigned char* subject);
+        struct PSSMatrix PSSMatrix, unsigned char* subject);
 struct coordinate ungappedExtension_findProteinSeed(struct ungappedExtension* ungappedExtension,
-                                                    struct PSSMatrix PSSMatrix, unsigned char* subject);
+        struct PSSMatrix PSSMatrix, unsigned char* subject);
 
 // Initialize the creation of ungapped extensions
 void ungappedExtension_initialize()
 {
 	ungappedExtension_extensions = memBlocks_initialize(sizeof(struct ungappedExtension),
-                                   constants_initialAllocUngappedExtensions);
+	                               constants_initialAllocUngappedExtensions);
 	ungappedExtension_minus3reward = parameters_matchScore * -3;
-    ungappedExtension_tableMatchesReward = parameters_matchScore * parameters_wordTableLetters;
+	ungappedExtension_tableMatchesReward = parameters_matchScore * parameters_wordTableLetters;
 }
 
 // Perform an ungapped extension between points queryStart,subjectStart and queryEnd,subjectEnd
 // and extend in each direction until score drops below best score yet minus a dropoff parameter
 struct ungappedExtension* ungappedExtension_extend(int2** queryHit, unsigned char* subjectHit,
-                        unsigned char* lastHit, struct PSSMatrix PSSMatrix, unsigned char* subject)
+        unsigned char* lastHit, struct PSSMatrix PSSMatrix, unsigned char* subject)
 {
 	int2 **queryPosition;
 	unsigned char *subjectPosition, *subjectStart, *subjectEnd;
 	int4 changeSinceBest = 0;
 	int4 dropoff, originalDropoff;
 
-    originalDropoff = dropoff = -statistics_ungappedNominalDropoff;
+	originalDropoff = dropoff = -statistics_ungappedNominalDropoff;
 	ungappedExtension_bestScore = 0;
 
 	// Start at queryEnd,subjectEnd (right/last hit position)
@@ -43,26 +43,24 @@ struct ungappedExtension* ungappedExtension_extend(int2** queryHit, unsigned cha
 	subjectPosition = subjectStart = subjectHit;
 
 	// Extend the start of the hit backwards until dropoff
-	while (changeSinceBest > dropoff)
-	{
+	while (changeSinceBest > dropoff) {
 		changeSinceBest += (*queryPosition)[*subjectPosition];
 
-        // If we have got a positive score
-		if (changeSinceBest > 0)
-		{
+		// If we have got a positive score
+		if (changeSinceBest > 0) {
 			// Keep updating best score and resetting change-since-best
 			// whilst we are reading positive scores
-			do
-			{
+			do {
 				ungappedExtension_bestScore += changeSinceBest;
-				queryPosition--; subjectPosition--;
+				queryPosition--;
+				subjectPosition--;
 				changeSinceBest = (*queryPosition)[*subjectPosition];
-			}
-			while (changeSinceBest > 0);
+			} while (changeSinceBest > 0);
 
 			subjectStart = subjectPosition;
 		}
-		queryPosition--; subjectPosition--;
+		queryPosition--;
+		subjectPosition--;
 	}
 
 	// Correct for extra decrement
@@ -70,92 +68,84 @@ struct ungappedExtension* ungappedExtension_extend(int2** queryHit, unsigned cha
 
 	// If best start point is right of previous hit which helped trigger this extension
 	// then stop now
-	if (subjectStart > lastHit)
-	{
+	if (subjectStart > lastHit) {
 		ungappedExtension_subjectEndReached = subjectHit;
 		return NULL;
 	}
 
 	// Starting at right/last hit position again
 	queryPosition = queryHit + 1;
-    subjectEnd = subjectHit;
+	subjectEnd = subjectHit;
 	subjectPosition = subjectHit + 1;
-    changeSinceBest = 0;
+	changeSinceBest = 0;
 
-    // May need to alter dropoff so we also dropoff if below zero
-    if (-ungappedExtension_bestScore > originalDropoff)
-    {
-    	dropoff = -ungappedExtension_bestScore;
-    }
+	// May need to alter dropoff so we also dropoff if below zero
+	if (-ungappedExtension_bestScore > originalDropoff) {
+		dropoff = -ungappedExtension_bestScore;
+	}
 
 	// Extend end of alignment until dropoff
-	while (changeSinceBest > dropoff)
-	{
+	while (changeSinceBest > dropoff) {
 		changeSinceBest += (*queryPosition)[*subjectPosition];
 
-        // If we have got a positive score
-		if (changeSinceBest > 0)
-		{
+		// If we have got a positive score
+		if (changeSinceBest > 0) {
 			// Keep updating best score and resetting change-since-best
 			// whilst we are reading positive scores
-			do
-			{
+			do {
 				ungappedExtension_bestScore += changeSinceBest;
-				queryPosition++; subjectPosition++;
+				queryPosition++;
+				subjectPosition++;
 				changeSinceBest = (*queryPosition)[*subjectPosition];
-			}
-			while (changeSinceBest > 0);
+			} while (changeSinceBest > 0);
 
 			subjectEnd = subjectPosition;
 
 			// Check need for change in dropoff
-            if ((dropoff = -ungappedExtension_bestScore) < originalDropoff)
-            {
-            	dropoff = originalDropoff;
-            }
-        }
-		queryPosition++; subjectPosition++;
+			if ((dropoff = -ungappedExtension_bestScore) < originalDropoff) {
+				dropoff = originalDropoff;
+			}
+		}
+		queryPosition++;
+		subjectPosition++;
 	}
 
 	// Correct for extra increment
 	subjectEnd--;
 	ungappedExtension_subjectEndReached = subjectEnd;
 
-    // If extension scored above trigger for gapping, create object and return it
-    if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger)
-    {
-    	int4 diagonal;
-        struct ungappedExtension* newUngappedExtension;
-        newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
+	// If extension scored above trigger for gapping, create object and return it
+	if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger) {
+		int4 diagonal;
+		struct ungappedExtension* newUngappedExtension;
+		newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
 
-        // Calculate diagonal
-        diagonal = (subjectHit - subject) - (queryHit - PSSMatrix.matrix);
+		// Calculate diagonal
+		diagonal = (subjectHit - subject) - (queryHit - PSSMatrix.matrix);
 
-        // Determine offsets from pointers
-        newUngappedExtension->start.subjectOffset = subjectStart - subject;
-        newUngappedExtension->end.subjectOffset = subjectEnd - subject;
-        newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
-        newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
+		// Determine offsets from pointers
+		newUngappedExtension->start.subjectOffset = subjectStart - subject;
+		newUngappedExtension->end.subjectOffset = subjectEnd - subject;
+		newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
+		newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
 
-        // Find the seed point
-        newUngappedExtension->seed = ungappedExtension_findProteinSeed(newUngappedExtension, PSSMatrix, subject);
-        // Initialize next to null
-        newUngappedExtension->next = NULL;
-        newUngappedExtension->nominalScore = ungappedExtension_bestScore;
-        newUngappedExtension->status = ungappedExtension_UNGAPPED;
+		// Find the seed point
+		newUngappedExtension->seed = ungappedExtension_findProteinSeed(newUngappedExtension, PSSMatrix, subject);
+		// Initialize next to null
+		newUngappedExtension->next = NULL;
+		newUngappedExtension->nominalScore = ungappedExtension_bestScore;
+		newUngappedExtension->status = ungappedExtension_UNGAPPED;
 
-        return newUngappedExtension;
-    }
-    else
-    {
-    	return NULL;
-    }
+		return newUngappedExtension;
+	} else {
+		return NULL;
+	}
 }
 
 // Perform an ungapped extension when the seed is only a single hit on the diagonal, rather
 // than a pair of hits.
 struct ungappedExtension* ungappedExtension_oneHitExtend(int2** queryHit,
-		unsigned char* subjectHit, struct PSSMatrix PSSMatrix, unsigned char* subject)
+        unsigned char* subjectHit, struct PSSMatrix PSSMatrix, unsigned char* subject)
 {
 	int2** queryPosition;
 	unsigned char* subjectPosition, *subjectStart, *subjectEnd;
@@ -163,32 +153,30 @@ struct ungappedExtension* ungappedExtension_oneHitExtend(int2** queryHit,
 	int4 dropoff, originalDropoff;
 
 	originalDropoff = dropoff = -statistics_ungappedNominalDropoff;
-    ungappedExtension_bestScore = 0;
+	ungappedExtension_bestScore = 0;
 
 	// Start at queryEnd,subjectEnd (right/last hit position)
 	queryPosition = queryHit;
 	subjectPosition = subjectStart = subjectHit;
 
 	// Extend the start of the hit forwards until dropoff
-	while (changeSinceBest > dropoff)
-	{
+	while (changeSinceBest > dropoff) {
 		changeSinceBest += (*queryPosition)[*subjectPosition];
 		// If we have got a positive score
-		if (changeSinceBest > 0)
-		{
+		if (changeSinceBest > 0) {
 			// Keep updating best score and resetting change-since-best
 			// whilst we are reading positive scores
-			do
-			{
+			do {
 				ungappedExtension_bestScore += changeSinceBest;
-				queryPosition--; subjectPosition--;
+				queryPosition--;
+				subjectPosition--;
 				changeSinceBest = (*queryPosition)[*subjectPosition];
-			}
-			while (changeSinceBest > 0);
+			} while (changeSinceBest > 0);
 
 			subjectStart = subjectPosition;
 		}
-		queryPosition--; subjectPosition--;
+		queryPosition--;
+		subjectPosition--;
 	}
 
 	// Correct for extra decrement
@@ -199,298 +187,284 @@ struct ungappedExtension* ungappedExtension_oneHitExtend(int2** queryHit,
 	subjectPosition = subjectEnd = subjectHit + 1;
 	changeSinceBest = 0;
 
-    // May need to alter dropoff so we also dropoff if below zero
-    if (-ungappedExtension_bestScore > originalDropoff)
-    {
-    	dropoff = -ungappedExtension_bestScore;
-    }
+	// May need to alter dropoff so we also dropoff if below zero
+	if (-ungappedExtension_bestScore > originalDropoff) {
+		dropoff = -ungappedExtension_bestScore;
+	}
 
 	// Extend end of alignment until dropoff
-	while (changeSinceBest > dropoff)
-	{
+	while (changeSinceBest > dropoff) {
 		changeSinceBest += (*queryPosition)[*subjectPosition];
 		// If we have got a positive score
-		if (changeSinceBest > 0)
-		{
+		if (changeSinceBest > 0) {
 			// Keep updating best score and resetting change-since-best
 			// whilst we are reading positive scores
-			do
-			{
+			do {
 				ungappedExtension_bestScore += changeSinceBest;
-				queryPosition++; subjectPosition++;
+				queryPosition++;
+				subjectPosition++;
 				changeSinceBest = (*queryPosition)[*subjectPosition];
-			}
-			while (changeSinceBest > 0);
+			} while (changeSinceBest > 0);
 
 			subjectEnd = subjectPosition;
 
 			// Check need for change in dropoff
-            if ((dropoff = -ungappedExtension_bestScore) < originalDropoff)
-            {
-            	dropoff = originalDropoff;
-            }
-        }
-		queryPosition++; subjectPosition++;
+			if ((dropoff = -ungappedExtension_bestScore) < originalDropoff) {
+				dropoff = originalDropoff;
+			}
+		}
+		queryPosition++;
+		subjectPosition++;
 	}
 
 	// Correct for extra increment
 	subjectEnd--;
 
-    // Record the point we got to extending forwards
-    ungappedExtension_subjectEndReached = subjectPosition;
+	// Record the point we got to extending forwards
+	ungappedExtension_subjectEndReached = subjectPosition;
 
-    // If extension scored above trigger for gapping, create object and return it
-    if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger)
-    {
-    	int4 diagonal;
-        struct ungappedExtension* newUngappedExtension;
-        newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
+	// If extension scored above trigger for gapping, create object and return it
+	if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger) {
+		int4 diagonal;
+		struct ungappedExtension* newUngappedExtension;
+		newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
 
-        // Calculate diagonal
-        diagonal = (subjectHit - subject) - (queryHit - PSSMatrix.matrix);
+		// Calculate diagonal
+		diagonal = (subjectHit - subject) - (queryHit - PSSMatrix.matrix);
 
-        // Determine offsets from pointers
-        newUngappedExtension->start.subjectOffset = subjectStart - subject;
-        newUngappedExtension->end.subjectOffset = subjectEnd - subject;
-        newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
-        newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
+		// Determine offsets from pointers
+		newUngappedExtension->start.subjectOffset = subjectStart - subject;
+		newUngappedExtension->end.subjectOffset = subjectEnd - subject;
+		newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
+		newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
 
-        // Find the seed point
-        newUngappedExtension->seed = ungappedExtension_findProteinSeed(newUngappedExtension, PSSMatrix, subject);
-        // Initialize next to null
-        newUngappedExtension->next = NULL;
-        newUngappedExtension->nominalScore = ungappedExtension_bestScore;
-        newUngappedExtension->status = ungappedExtension_UNGAPPED;
+		// Find the seed point
+		newUngappedExtension->seed = ungappedExtension_findProteinSeed(newUngappedExtension, PSSMatrix, subject);
+		// Initialize next to null
+		newUngappedExtension->next = NULL;
+		newUngappedExtension->nominalScore = ungappedExtension_bestScore;
+		newUngappedExtension->status = ungappedExtension_UNGAPPED;
 
-        return newUngappedExtension;
-    }
-    else
-    {
-    	return NULL;
-    }
+		return newUngappedExtension;
+	} else {
+		return NULL;
+	}
 }
 
 // Perform one-hit seeded ungapped extension for nucleotide, 1 packed-byte at a time
 struct ungappedExtension* ungappedExtension_nucleotideExtend(int4 queryHitOffset,
-	int4 subjectHitOffset, struct PSSMatrix PSSMatrix, unsigned char* subject,
-    uint4 subjectLength)
+        int4 subjectHitOffset, struct PSSMatrix PSSMatrix, unsigned char* subject,
+        uint4 subjectLength)
 {
 	unsigned char* queryPosition, *minQueryPosition, *maxQueryPosition;
 	unsigned char* subjectPosition, *subjectStart, *subjectEnd;
 	int4 dropoff, originalDropoff;
-    int4 changeSinceBest = 0;
-    int4 matchLettersScore;
+	int4 changeSinceBest = 0;
+	int4 matchLettersScore;
 
 	originalDropoff = dropoff = -statistics_ungappedNominalDropoff;
 
-    // Start with score for lookup-table nucleotide match that is not aligned
-    ungappedExtension_bestScore = ungappedExtension_tableMatchesReward;
+	// Start with score for lookup-table nucleotide match that is not aligned
+	ungappedExtension_bestScore = ungappedExtension_tableMatchesReward;
 
-    // Determine minimum query position; either start of the query or start of the second strand
-    if (queryHitOffset <= PSSMatrix.strandLength)
-    {
-        if (queryHitOffset < subjectHitOffset * 4)
-            minQueryPosition = PSSMatrix.bytePackedCodes;
-        else
-            minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
+	// Determine minimum query position; either start of the query or start of the second strand
+	if (queryHitOffset <= PSSMatrix.strandLength) {
+		if (queryHitOffset < subjectHitOffset * 4) {
+			minQueryPosition = PSSMatrix.bytePackedCodes;
+		} else {
+			minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
+		}
+	} else {
+		if (queryHitOffset - PSSMatrix.strandLength < subjectHitOffset * 4) {
+			minQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength;
+		} else {
+			minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
+		}
 	}
-    else
-    {
-        if (queryHitOffset - PSSMatrix.strandLength < subjectHitOffset * 4)
-            minQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength;
-        else
-            minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
-    }
 
 	// Start left of hit location
 	queryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - parameters_wordTableLetters - 4;
 	subjectPosition = subjectStart = subject + subjectHitOffset - parameters_wordTableBytes - 1;
 
-    // Consider partial match of first byte before hit
+	// Consider partial match of first byte before hit
 	matchLettersScore = PSSMatrix_packedLeftMatchScores[*queryPosition ^ *subjectPosition];
-    ungappedExtension_bestScore += matchLettersScore;
+	ungappedExtension_bestScore += matchLettersScore;
 	changeSinceBest = -matchLettersScore;
 
-    // Move back through alignment until start of query or subject, or until dropoff
-    while (queryPosition > minQueryPosition)
-    {
-    	// Add score of matching entire bytes
+	// Move back through alignment until start of query or subject, or until dropoff
+	while (queryPosition > minQueryPosition) {
+		// Add score of matching entire bytes
 		changeSinceBest += PSSMatrix_packedScore[*queryPosition ^ *subjectPosition];
 
-        #ifdef VERBOSE
-        if (parameters_verboseDloc == blast_dloc)
-        {
-        	printf("<%d< ", PSSMatrix_packedScore[*queryPosition ^ *subjectPosition]);
-            printf("["); encoding_printLetters(*queryPosition, 4);
-            printf(","); encoding_printLetters(*subjectPosition, 4); printf("]\n");
+#ifdef VERBOSE
+		if (parameters_verboseDloc == blast_dloc) {
+			printf("<%d< ", PSSMatrix_packedScore[*queryPosition ^ *subjectPosition]);
+			printf("[");
+			encoding_printLetters(*queryPosition, 4);
+			printf(",");
+			encoding_printLetters(*subjectPosition, 4);
+			printf("]\n");
 		}
-        #endif
+#endif
 
-        // If we possibly have a new best score
-        if (changeSinceBest > ungappedExtension_minus3reward)
-        {
-            // Get score for matching individual letters in next byte
-        	queryPosition-=4; subjectPosition--;
-	        matchLettersScore = PSSMatrix_packedLeftMatchScores[*queryPosition ^ *subjectPosition];
+		// If we possibly have a new best score
+		if (changeSinceBest > ungappedExtension_minus3reward) {
+			// Get score for matching individual letters in next byte
+			queryPosition -= 4;
+			subjectPosition--;
+			matchLettersScore = PSSMatrix_packedLeftMatchScores[*queryPosition ^ *subjectPosition];
 
-            // If best score
-            if (changeSinceBest + matchLettersScore > 0)
-            {
-                // Mark new best position
-                subjectStart = subjectPosition;
+			// If best score
+			if (changeSinceBest + matchLettersScore > 0) {
+				// Mark new best position
+				subjectStart = subjectPosition;
 
-                // Update best score and change since best
-                ungappedExtension_bestScore += changeSinceBest + matchLettersScore;
-                changeSinceBest = -matchLettersScore;
+				// Update best score and change since best
+				ungappedExtension_bestScore += changeSinceBest + matchLettersScore;
+				changeSinceBest = -matchLettersScore;
 
-                #ifdef VERBOSE
-                if (parameters_verboseDloc == blast_dloc)
-                    printf("(Best=%d)\n", ungappedExtension_bestScore);
-                #endif
-            }
-        }
-        else
-        {
-        	// Decrease in score, check dropoff
-			if (changeSinceBest < dropoff)
-            	break;
+#ifdef VERBOSE
+				if (parameters_verboseDloc == blast_dloc) {
+					printf("(Best=%d)\n", ungappedExtension_bestScore);
+				}
+#endif
+			}
+		} else {
+			// Decrease in score, check dropoff
+			if (changeSinceBest < dropoff) {
+				break;
+			}
 
-            queryPosition-=4; subjectPosition--;
-        }
-    }
-
-    // Determine maximum query position; either end of the query or end of the first strand
-    if (queryHitOffset <= PSSMatrix.strandLength)
-    {
-        if (PSSMatrix.strandLength - queryHitOffset < subjectLength - subjectHitOffset * 4)
-            maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength - 4;
-        else
-            maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
-                             + queryHitOffset - 4;
+			queryPosition -= 4;
+			subjectPosition--;
+		}
 	}
-    else
-    {
-        if (PSSMatrix.length - queryHitOffset < subjectLength - subjectHitOffset * 4)
-            maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.length - 4;
-        else
-            maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
-                             + queryHitOffset - 4;
-    }
 
-    // Starting right of hit position
+	// Determine maximum query position; either end of the query or end of the first strand
+	if (queryHitOffset <= PSSMatrix.strandLength) {
+		if (PSSMatrix.strandLength - queryHitOffset < subjectLength - subjectHitOffset * 4) {
+			maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength - 4;
+		} else
+			maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
+			                   + queryHitOffset - 4;
+	} else {
+		if (PSSMatrix.length - queryHitOffset < subjectLength - subjectHitOffset * 4) {
+			maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.length - 4;
+		} else
+			maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
+			                   + queryHitOffset - 4;
+	}
+
+	// Starting right of hit position
 	queryPosition = PSSMatrix.bytePackedCodes + queryHitOffset;
 	subjectPosition = subjectEnd = subject + subjectHitOffset;
 	changeSinceBest = 0;
 
-    // May need to alter dropoff so we also dropoff if below zero
-    if (-ungappedExtension_bestScore > originalDropoff)
-    {
-    	dropoff = -ungappedExtension_bestScore;
-    }
+	// May need to alter dropoff so we also dropoff if below zero
+	if (-ungappedExtension_bestScore > originalDropoff) {
+		dropoff = -ungappedExtension_bestScore;
+	}
 
-    // Consider partial match of first byte after hit
+	// Consider partial match of first byte after hit
 	matchLettersScore = PSSMatrix_packedRightMatchScores[*queryPosition ^ *subjectPosition];
-    ungappedExtension_bestScore += matchLettersScore;
+	ungappedExtension_bestScore += matchLettersScore;
 	changeSinceBest = -matchLettersScore;
 
-    // Move forward through alignment until end of query or subject, or until dropoff
-    while (queryPosition < maxQueryPosition)
-    {
+	// Move forward through alignment until end of query or subject, or until dropoff
+	while (queryPosition < maxQueryPosition) {
 		// Score of matching entire bytes
 		changeSinceBest += PSSMatrix_packedScore[*queryPosition ^ *subjectPosition];
 
-        #ifdef VERBOSE
-        if (parameters_verboseDloc == blast_dloc)
-        {
-        	printf(">%d> ", PSSMatrix_packedScore[*queryPosition ^ *subjectPosition]);
-            printf("["); encoding_printLetters(*queryPosition, 4);
-            printf(","); encoding_printLetters(*subjectPosition, 4); printf("]\n");
-            printf("changeSinceBest=%d\n", changeSinceBest);
+#ifdef VERBOSE
+		if (parameters_verboseDloc == blast_dloc) {
+			printf(">%d> ", PSSMatrix_packedScore[*queryPosition ^ *subjectPosition]);
+			printf("[");
+			encoding_printLetters(*queryPosition, 4);
+			printf(",");
+			encoding_printLetters(*subjectPosition, 4);
+			printf("]\n");
+			printf("changeSinceBest=%d\n", changeSinceBest);
 		}
-        #endif
+#endif
 
-        // If we possibly have a new best score
-        if (changeSinceBest > ungappedExtension_minus3reward)
-        {
-            // Get score for matching individual letters in next byte
-        	queryPosition+=4; subjectPosition++;
-	        matchLettersScore = PSSMatrix_packedRightMatchScores[*queryPosition ^ *subjectPosition];
+		// If we possibly have a new best score
+		if (changeSinceBest > ungappedExtension_minus3reward) {
+			// Get score for matching individual letters in next byte
+			queryPosition += 4;
+			subjectPosition++;
+			matchLettersScore = PSSMatrix_packedRightMatchScores[*queryPosition ^ *subjectPosition];
 
-            // If best score
-            if (changeSinceBest + matchLettersScore > 0)
-            {
-                // Mark new best position
-                subjectEnd = subjectPosition;
+			// If best score
+			if (changeSinceBest + matchLettersScore > 0) {
+				// Mark new best position
+				subjectEnd = subjectPosition;
 
-                // Update best score and change since best
-                ungappedExtension_bestScore += changeSinceBest + matchLettersScore;
-                changeSinceBest = -matchLettersScore;
+				// Update best score and change since best
+				ungappedExtension_bestScore += changeSinceBest + matchLettersScore;
+				changeSinceBest = -matchLettersScore;
 
-                #ifdef VERBOSE
-                if (parameters_verboseDloc == blast_dloc)
-                    printf("(Best=%d)\n", ungappedExtension_bestScore);
-                #endif
-            }
-        }
-        else
-        {
-        	// Decrease in score, check dropoff
-			if (changeSinceBest < dropoff)
-            	break;
+#ifdef VERBOSE
+				if (parameters_verboseDloc == blast_dloc) {
+					printf("(Best=%d)\n", ungappedExtension_bestScore);
+				}
+#endif
+			}
+		} else {
+			// Decrease in score, check dropoff
+			if (changeSinceBest < dropoff) {
+				break;
+			}
 
-            queryPosition+=4; subjectPosition++;
-        }
-    }
+			queryPosition += 4;
+			subjectPosition++;
+		}
+	}
 
-    // Record the point we got to extending forwards
-    ungappedExtension_subjectEndReached = subjectPosition;
+	// Record the point we got to extending forwards
+	ungappedExtension_subjectEndReached = subjectPosition;
 
-    // If extension scored above trigger for gapping, create object and return it
-    if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger)
-    {
-    	int4 diagonal;
-        struct ungappedExtension* newUngappedExtension;
-        newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
+	// If extension scored above trigger for gapping, create object and return it
+	if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger) {
+		int4 diagonal;
+		struct ungappedExtension* newUngappedExtension;
+		newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
 
-        // Correct for extra decrement
-        subjectStart++;
-        // Correct for extra increment
-        subjectEnd--;
+		// Correct for extra decrement
+		subjectStart++;
+		// Correct for extra increment
+		subjectEnd--;
 
-        // Calculate diagonal
-        diagonal = subjectHitOffset * 4 - queryHitOffset;
+		// Calculate diagonal
+		diagonal = subjectHitOffset * 4 - queryHitOffset;
 
-        // Determine offsets from pointers
-        newUngappedExtension->start.subjectOffset = (subjectStart - subject) * 4;
-        newUngappedExtension->end.subjectOffset = (subjectEnd - subject) * 4;
-        newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
-        newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
+		// Determine offsets from pointers
+		newUngappedExtension->start.subjectOffset = (subjectStart - subject) * 4;
+		newUngappedExtension->end.subjectOffset = (subjectEnd - subject) * 4;
+		newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
+		newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
 
 		newUngappedExtension->seed.queryOffset = -1;
 		newUngappedExtension->seed.subjectOffset = -1;
 
-        // Initialize next to null
-        newUngappedExtension->next = NULL;
-        newUngappedExtension->nominalScore = ungappedExtension_bestScore;
-        newUngappedExtension->status = ungappedExtension_UNGAPPED;
+		// Initialize next to null
+		newUngappedExtension->next = NULL;
+		newUngappedExtension->nominalScore = ungappedExtension_bestScore;
+		newUngappedExtension->status = ungappedExtension_UNGAPPED;
 
-        #ifdef VERBOSE
-        if (parameters_verboseDloc == blast_dloc)
-        {
-            printf("Hit=%d,%d\n", queryHitOffset, subjectHitOffset);
-            printf("%d,%d - %d,%d\n", newUngappedExtension->start.queryOffset, newUngappedExtension->start.subjectOffset,
-                                      newUngappedExtension->end.queryOffset, newUngappedExtension->end.subjectOffset);
-                                      fflush(stdout);
-            printf("seed=%d,%d\n", newUngappedExtension->seed.queryOffset, newUngappedExtension->seed.subjectOffset);
+#ifdef VERBOSE
+		if (parameters_verboseDloc == blast_dloc) {
+			printf("Hit=%d,%d\n", queryHitOffset, subjectHitOffset);
+			printf("%d,%d - %d,%d\n", newUngappedExtension->start.queryOffset, newUngappedExtension->start.subjectOffset,
+			       newUngappedExtension->end.queryOffset, newUngappedExtension->end.subjectOffset);
+			fflush(stdout);
+			printf("seed=%d,%d\n", newUngappedExtension->seed.queryOffset, newUngappedExtension->seed.subjectOffset);
 		}
-		#endif
+#endif
 
-        return newUngappedExtension;
-    }
-    else
-    {
-    	return NULL;
-    }
+		return newUngappedExtension;
+	} else {
+		return NULL;
+	}
 }
 
 // Check that the given coordinate pair is part of a hit of length at least hitLength
@@ -502,189 +476,174 @@ int ungappedExtension_checkHit(uint4 queryHitOffset, uint4 subjectHitOffset,
 	unsigned char* queryPosition, *minQueryPosition, *maxQueryPosition;
 	unsigned char* subjectPosition;
 
-    ungappedExtension_bestScore = 0;
-    match4 = parameters_matchScore * 4;
-    stopScore = (hitLength - 4) * parameters_matchScore;
-    targetScore = hitLength * parameters_matchScore;
+	ungappedExtension_bestScore = 0;
+	match4 = parameters_matchScore * 4;
+	stopScore = (hitLength - 4) * parameters_matchScore;
+	targetScore = hitLength * parameters_matchScore;
 
-    // Determine minimum query position; either start of the query or start of the second strand
-    if (queryHitOffset < PSSMatrix.strandLength)
-    {
-        if (queryHitOffset < subjectHitOffset * 4)
-            minQueryPosition = PSSMatrix.bytePackedCodes;
-        else
-            minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
+	// Determine minimum query position; either start of the query or start of the second strand
+	if (queryHitOffset < PSSMatrix.strandLength) {
+		if (queryHitOffset < subjectHitOffset * 4) {
+			minQueryPosition = PSSMatrix.bytePackedCodes;
+		} else {
+			minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
+		}
+	} else {
+		if (queryHitOffset - PSSMatrix.strandLength < subjectHitOffset * 4) {
+			minQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength;
+		} else {
+			minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
+		}
 	}
-    else
-    {
-        if (queryHitOffset - PSSMatrix.strandLength < subjectHitOffset * 4)
-            minQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength;
-        else
-            minQueryPosition = PSSMatrix.bytePackedCodes + queryHitOffset - subjectHitOffset * 4;
-    }
 
 	// Start left of hit location
 	queryPosition = PSSMatrix.bytePackedCodes + queryHitOffset;
 	subjectPosition = subject + subjectHitOffset;
 
-    while (queryPosition >= minQueryPosition)
-    {
-    	// Add score of matching next byte
+	while (queryPosition >= minQueryPosition) {
+		// Add score of matching next byte
 		match = PSSMatrix_packedLeftMatchScores[*queryPosition ^ *subjectPosition];
 
 //        printf("<%d< (%d)", match, queryPosition - PSSMatrix.bytePackedCodes);
 
-        if (match == match4 && ungappedExtension_bestScore < stopScore)
-        {
+		if (match == match4 && ungappedExtension_bestScore < stopScore) {
 			ungappedExtension_bestScore += match;
+		} else {
+			if (match > 0) {
+				ungappedExtension_bestScore += match;
+			}
+			break;
 		}
-        else
-        {
-        	if (match > 0)
-            	ungappedExtension_bestScore += match;
-        	break;
-        }
 
-        queryPosition-=4; subjectPosition--;
-    }
-
-    if (ungappedExtension_bestScore >= targetScore)
-    	return ungappedExtension_bestScore;
-
-    // Determine maximum query position; either end of the query or end of the first strand
-    if (queryHitOffset < PSSMatrix.strandLength)
-    {
-        if (PSSMatrix.strandLength - queryHitOffset < subjectLength - subjectHitOffset * 4)
-            maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength - 4;
-        else
-            maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
-                             + queryHitOffset - 4;
+		queryPosition -= 4;
+		subjectPosition--;
 	}
-    else
-    {
-        if (PSSMatrix.length - queryHitOffset < subjectLength - subjectHitOffset * 4)
-            maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.length - 4;
-        else
-            maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
-                             + queryHitOffset - 4;
-    }
 
-    // Starting right of hit position
+	if (ungappedExtension_bestScore >= targetScore) {
+		return ungappedExtension_bestScore;
+	}
+
+	// Determine maximum query position; either end of the query or end of the first strand
+	if (queryHitOffset < PSSMatrix.strandLength) {
+		if (PSSMatrix.strandLength - queryHitOffset < subjectLength - subjectHitOffset * 4) {
+			maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.strandLength - 4;
+		} else
+			maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
+			                   + queryHitOffset - 4;
+	} else {
+		if (PSSMatrix.length - queryHitOffset < subjectLength - subjectHitOffset * 4) {
+			maxQueryPosition = PSSMatrix.bytePackedCodes + PSSMatrix.length - 4;
+		} else
+			maxQueryPosition = PSSMatrix.bytePackedCodes + (subjectLength - subjectHitOffset * 4)
+			                   + queryHitOffset - 4;
+	}
+
+	// Starting right of hit position
 	queryPosition = PSSMatrix.bytePackedCodes + queryHitOffset + 4;
 	subjectPosition = subject + subjectHitOffset + 1;
 
-    while (queryPosition <= maxQueryPosition)
-    {
-    	// Add score of matching next byte
+	while (queryPosition <= maxQueryPosition) {
+		// Add score of matching next byte
 		match = PSSMatrix_packedRightMatchScores[*queryPosition ^ *subjectPosition];
 
 //        printf(">%d> (%d)", match, queryPosition - PSSMatrix.bytePackedCodes);
 
-        if (match == match4 && ungappedExtension_bestScore < stopScore)
-        {
+		if (match == match4 && ungappedExtension_bestScore < stopScore) {
 			ungappedExtension_bestScore += match;
+		} else {
+			if (match > 0) {
+				ungappedExtension_bestScore += match;
+			}
+			break;
 		}
-        else
-        {
-        	if (match > 0)
-            	ungappedExtension_bestScore += match;
-        	break;
-        }
 
-        queryPosition+=4; subjectPosition++;
-    }
+		queryPosition += 4;
+		subjectPosition++;
+	}
 
-    // Record the point we got to extending forwards
-    ungappedExtension_subjectEndReached = subjectPosition;
+	// Record the point we got to extending forwards
+	ungappedExtension_subjectEndReached = subjectPosition;
 
-    if (ungappedExtension_bestScore >= targetScore)
-    	return ungappedExtension_bestScore;
-	else
-    	return 0;
+	if (ungappedExtension_bestScore >= targetScore) {
+		return ungappedExtension_bestScore;
+	} else {
+		return 0;
+	}
 }
 
 // Find seed point for an ungapped extension
 void ungappedExtension_findSeed(struct ungappedExtension* ungappedExtension,
-	struct PSSMatrix PSSMatrix, unsigned char* subject)
+                                struct PSSMatrix PSSMatrix, unsigned char* subject)
 {
 	// Find seed if not already recorded
-	if (ungappedExtension->seed.queryOffset == -1 && ungappedExtension->seed.subjectOffset == -1)
-    {
-        if (encoding_alphabetType == encoding_protein)
-        {
-            ungappedExtension->seed
-            	= ungappedExtension_findProteinSeed(ungappedExtension, PSSMatrix, subject);
-        }
-        else
-        {
-            ungappedExtension->seed
-            	= ungappedExtension_findNucleotideSeed(ungappedExtension, PSSMatrix, subject);
-        }
+	if (ungappedExtension->seed.queryOffset == -1 && ungappedExtension->seed.subjectOffset == -1) {
+		if (encoding_alphabetType == encoding_protein) {
+			ungappedExtension->seed
+			    = ungappedExtension_findProteinSeed(ungappedExtension, PSSMatrix, subject);
+		} else {
+			ungappedExtension->seed
+			    = ungappedExtension_findNucleotideSeed(ungappedExtension, PSSMatrix, subject);
+		}
 	}
 }
 
 // Find the seed point (middle of the longest run of matching bytes) of an ungapped extension
 // for a bytepacked nucleotide sequence
 struct coordinate ungappedExtension_findNucleotideSeed(struct ungappedExtension* ungappedExtension,
-                                                       struct PSSMatrix PSSMatrix, unsigned char* subject)
+        struct PSSMatrix PSSMatrix, unsigned char* subject)
 {
 	unsigned char *queryPosition, *subjectPosition, *subjectEnd;
-    unsigned char *queryStartRun, *subjectStartRun;
-    int4 queryMiddle, subjectMiddle;
-    int4 run = 0, longestRun = 0, diagonal;
+	unsigned char *queryStartRun, *subjectStartRun;
+	int4 queryMiddle, subjectMiddle;
+	int4 run = 0, longestRun = 0, diagonal;
 	struct coordinate seed;
 
-    // Start at beginning of ungapped alignment
-    queryPosition = PSSMatrix.bytePackedCodes + ungappedExtension->start.queryOffset;
-    subjectPosition = subject + ungappedExtension->start.subjectOffset / 4;
+	// Start at beginning of ungapped alignment
+	queryPosition = PSSMatrix.bytePackedCodes + ungappedExtension->start.queryOffset;
+	subjectPosition = subject + ungappedExtension->start.subjectOffset / 4;
 	queryStartRun = queryPosition;
 	subjectStartRun = subjectPosition;
-    subjectMiddle = (ungappedExtension->start.subjectOffset + ungappedExtension->end.subjectOffset) / 8;
+	subjectMiddle = (ungappedExtension->start.subjectOffset + ungappedExtension->end.subjectOffset) / 8;
 
-    subjectEnd = subject + ungappedExtension->end.subjectOffset / 4;
-    // Slide across ungapped alignment until end
-    while (subjectPosition <= subjectEnd)
-    {
-		if (*subjectPosition == *queryPosition)
-        {
-	    	// Bytes match, increase length of run
-        	run++;
-        }
-        else
-        {
-        	// Bytes mismatch, end of run, check if the longest run
-        	if (run > longestRun)
-            {
-            	// If longest run find its middle
+	subjectEnd = subject + ungappedExtension->end.subjectOffset / 4;
+	// Slide across ungapped alignment until end
+	while (subjectPosition <= subjectEnd) {
+		if (*subjectPosition == *queryPosition) {
+			// Bytes match, increase length of run
+			run++;
+		} else {
+			// Bytes mismatch, end of run, check if the longest run
+			if (run > longestRun) {
+				// If longest run find its middle
 				longestRun = run;
 				subjectMiddle = ((subjectPosition - 1 - subject) + (subjectStartRun - subject)) / 2;
-            }
-            // Reset length and start of run
-        	run = 0;
-            queryStartRun = queryPosition;
-            subjectStartRun = subjectPosition;
-        }
+			}
+			// Reset length and start of run
+			run = 0;
+			queryStartRun = queryPosition;
+			subjectStartRun = subjectPosition;
+		}
 
-        subjectPosition++;
-        queryPosition+=4;
-    }
+		subjectPosition++;
+		queryPosition += 4;
+	}
 
-    // Calculate the query middle based on the subject middle
-    diagonal = ungappedExtension->start.subjectOffset - ungappedExtension->start.queryOffset;
-    subjectMiddle *= 4;
-    queryMiddle = subjectMiddle - diagonal;
+	// Calculate the query middle based on the subject middle
+	diagonal = ungappedExtension->start.subjectOffset - ungappedExtension->start.queryOffset;
+	subjectMiddle *= 4;
+	queryMiddle = subjectMiddle - diagonal;
 
-    // Use the middle of the seed byte
-    seed.queryOffset = queryMiddle + 2;
-    seed.subjectOffset = subjectMiddle + 2;
+	// Use the middle of the seed byte
+	seed.queryOffset = queryMiddle + 2;
+	seed.subjectOffset = subjectMiddle + 2;
 
-    return seed;
+	return seed;
 }
 
 // Find the seed point (the middle of the 11-aa long highest scoring region) of the
 // given ungapped extension
 struct coordinate ungappedExtension_findProteinSeed(struct ungappedExtension* ungappedExtension,
-                                                    struct PSSMatrix PSSMatrix, unsigned char* subject)
+        struct PSSMatrix PSSMatrix, unsigned char* subject)
 {
 	int2 **queryWindowStart, **queryWindowEnd;
 	unsigned char *subjectWindowStart, *subjectWindowEnd;
@@ -694,70 +653,64 @@ struct coordinate ungappedExtension_findProteinSeed(struct ungappedExtension* un
 	int4 nominalScore, count;
 	struct coordinate seed;
 
-    // If the length of the ungapped extension is 11 or less
-    if (ungappedExtension->end.queryOffset - ungappedExtension->start.queryOffset < 11)
-    {
-        // The seed point is the middle of the extension
-        seed.queryOffset = (ungappedExtension->end.queryOffset +
-                            ungappedExtension->start.queryOffset) / 2;
-        seed.subjectOffset = (ungappedExtension->end.subjectOffset +
-                              ungappedExtension->start.subjectOffset) / 2;
-    }
-    else
-    {
-        // Else find the highest scoring length-11 segment of the ungapped extension
-        queryWindowStart = queryWindowEnd = PSSMatrix.matrix + ungappedExtension->start.queryOffset;
-        subjectWindowStart = subjectWindowEnd = subject + ungappedExtension->start.subjectOffset;
+	// If the length of the ungapped extension is 11 or less
+	if (ungappedExtension->end.queryOffset - ungappedExtension->start.queryOffset < 11) {
+		// The seed point is the middle of the extension
+		seed.queryOffset = (ungappedExtension->end.queryOffset +
+		                    ungappedExtension->start.queryOffset) / 2;
+		seed.subjectOffset = (ungappedExtension->end.subjectOffset +
+		                      ungappedExtension->start.subjectOffset) / 2;
+	} else {
+		// Else find the highest scoring length-11 segment of the ungapped extension
+		queryWindowStart = queryWindowEnd = PSSMatrix.matrix + ungappedExtension->start.queryOffset;
+		subjectWindowStart = subjectWindowEnd = subject + ungappedExtension->start.subjectOffset;
 
-        // Find initial score for first 11 positions
-        nominalScore = 0;
-        count = 0;
-        while (count < 11)
-        {
-            // Add to tally score for query/subject at this position
-            nominalScore += (*queryWindowEnd)[*subjectWindowEnd];
+		// Find initial score for first 11 positions
+		nominalScore = 0;
+		count = 0;
+		while (count < 11) {
+			// Add to tally score for query/subject at this position
+			nominalScore += (*queryWindowEnd)[*subjectWindowEnd];
 
-            queryWindowEnd++;
-            subjectWindowEnd++;
-            count++;
-        }
+			queryWindowEnd++;
+			subjectWindowEnd++;
+			count++;
+		}
 
-        queryWindowEnd--;
-        subjectWindowEnd--;
+		queryWindowEnd--;
+		subjectWindowEnd--;
 
-        // By default first-11 positions gives best position and score
-        bestQueryPosition = queryWindowStart;
-        bestSubjectPosition = subjectWindowStart;
-        bestSegmentScore = nominalScore;
+		// By default first-11 positions gives best position and score
+		bestQueryPosition = queryWindowStart;
+		bestSubjectPosition = subjectWindowStart;
+		bestSegmentScore = nominalScore;
 
-        // Now slide the window across and record the better scores/positions
-        while (queryWindowEnd < PSSMatrix.matrix + ungappedExtension->end.queryOffset)
-        {
-            // Advance window end, add new position value
-            queryWindowEnd++;
-            subjectWindowEnd++;
-            nominalScore += (*queryWindowEnd)[*subjectWindowEnd];
+		// Now slide the window across and record the better scores/positions
+		while (queryWindowEnd < PSSMatrix.matrix + ungappedExtension->end.queryOffset) {
+			// Advance window end, add new position value
+			queryWindowEnd++;
+			subjectWindowEnd++;
+			nominalScore += (*queryWindowEnd)[*subjectWindowEnd];
 
-            // Remove position that we will leave behind
-            nominalScore -= (*queryWindowStart)[*subjectWindowStart];
+			// Remove position that we will leave behind
+			nominalScore -= (*queryWindowStart)[*subjectWindowStart];
 
-            // Advance window start
-            queryWindowStart++;
-            subjectWindowStart++;
+			// Advance window start
+			queryWindowStart++;
+			subjectWindowStart++;
 
-            // Check if best window position yet
-            if (nominalScore > bestSegmentScore)
-            {
-                bestSegmentScore = nominalScore;
-                bestQueryPosition = queryWindowStart;
-                bestSubjectPosition = subjectWindowStart;
-            }
-        }
+			// Check if best window position yet
+			if (nominalScore > bestSegmentScore) {
+				bestSegmentScore = nominalScore;
+				bestQueryPosition = queryWindowStart;
+				bestSubjectPosition = subjectWindowStart;
+			}
+		}
 
-        // Middle of the best window is the seed position
-        seed.queryOffset = bestQueryPosition + 5 - PSSMatrix.matrix;
-        seed.subjectOffset = bestSubjectPosition + 5 - subject;
-    }
+		// Middle of the best window is the seed position
+		seed.queryOffset = bestQueryPosition + 5 - PSSMatrix.matrix;
+		seed.subjectOffset = bestSubjectPosition + 5 - subject;
+	}
 
 	return seed;
 }
@@ -766,126 +719,124 @@ struct coordinate ungappedExtension_findProteinSeed(struct ungappedExtension* un
 void ungappedExtension_print(struct ungappedExtension* extension)
 {
 	printf("Ungapped extension %d,%d to %d,%d score=%d status=%d seed=%d,%d\n",
-	extension->start.queryOffset, extension->start.subjectOffset,
-	extension->end.queryOffset, extension->end.subjectOffset,
-	extension->nominalScore, extension->status,
-    extension->seed.queryOffset, extension->seed.subjectOffset);
+	       extension->start.queryOffset, extension->start.subjectOffset,
+	       extension->end.queryOffset, extension->end.subjectOffset,
+	       extension->nominalScore, extension->status,
+	       extension->seed.queryOffset, extension->seed.subjectOffset);
 }
 
 
 struct ungappedExtension* ungappedExtension_simpleScoring(
-       unsigned char* sequence1, uint4 offset1, unsigned char* sequence2, uint4 offset2)
+    unsigned char* sequence1, uint4 offset1, unsigned char* sequence2, uint4 offset2)
 {
 	int4 position1, position2, start;
 	int4 dropoff, score;
 
 	dropoff = 5;
-    ungappedExtension_bestScore = 0;
-    score = 0;
+	ungappedExtension_bestScore = 0;
+	score = 0;
 
 	position1 = offset1;
 	position2 = start = offset2;
 
-    while (position2 > 0 && position1 > 0 && score + dropoff >= ungappedExtension_bestScore)
-    {
-    	if (sequence1[position1] == sequence2[position2])
-        {
-            score++; printf("1");
-		}
-        else
-		{
-            score--; printf("0");
+	while (position2 > 0 && position1 > 0 && score + dropoff >= ungappedExtension_bestScore) {
+		if (sequence1[position1] == sequence2[position2]) {
+			score++;
+			printf("1");
+		} else {
+			score--;
+			printf("0");
 		}
 
-        if (score > ungappedExtension_bestScore)
-        {
+		if (score > ungappedExtension_bestScore) {
 			ungappedExtension_bestScore = score;
-            start = position1;
-        }
+			start = position1;
+		}
 
-        position1--; position2--;
-    }
+		position1--;
+		position2--;
+	}
 
 	// Correct for extra decrement
 	start++;
 
-    printf("\n%d to %d Dist=%d Score=%d\n", offset1, start, offset1 - start, ungappedExtension_bestScore);
-/*
-	// Starting at right/last hit position again
-	queryPosition = queryHit + 1;
-	subjectPosition = subjectEnd = subjectHit + 1;
-	changeSinceBest = 0;
+	printf("\n%d to %d Dist=%d Score=%d\n", offset1, start, offset1 - start, ungappedExtension_bestScore);
+	/*
+		// Starting at right/last hit position again
+		queryPosition = queryHit + 1;
+		subjectPosition = subjectEnd = subjectHit + 1;
+		changeSinceBest = 0;
 
-    // May need to alter dropoff so we also dropoff if below zero
-    if (-ungappedExtension_bestScore > originalDropoff)
-    {
-    	dropoff = -ungappedExtension_bestScore;
-    }
+	    // May need to alter dropoff so we also dropoff if below zero
+	    if (-ungappedExtension_bestScore > originalDropoff)
+	    {
+	    	dropoff = -ungappedExtension_bestScore;
+	    }
 
-	// Extend end of alignment until dropoff
-	while (changeSinceBest > dropoff)
-	{
-		changeSinceBest += (*queryPosition)[*subjectPosition];
-		// If we have got a positive score
-		if (changeSinceBest > 0)
+		// Extend end of alignment until dropoff
+		while (changeSinceBest > dropoff)
 		{
-			// Keep updating best score and resetting change-since-best
-			// whilst we are reading positive scores
-			do
+			changeSinceBest += (*queryPosition)[*subjectPosition];
+			// If we have got a positive score
+			if (changeSinceBest > 0)
 			{
-				ungappedExtension_bestScore += changeSinceBest;
-				queryPosition++; subjectPosition++;
-				changeSinceBest = (*queryPosition)[*subjectPosition];
-			}
-			while (changeSinceBest > 0);
+				// Keep updating best score and resetting change-since-best
+				// whilst we are reading positive scores
+				do
+				{
+					ungappedExtension_bestScore += changeSinceBest;
+					queryPosition++; subjectPosition++;
+					changeSinceBest = (*queryPosition)[*subjectPosition];
+				}
+				while (changeSinceBest > 0);
 
-			subjectEnd = subjectPosition;
+				subjectEnd = subjectPosition;
 
-			// Check need for change in dropoff
-            if ((dropoff = -ungappedExtension_bestScore) < originalDropoff)
-            {
-            	dropoff = originalDropoff;
-            }
-        }
-		queryPosition++; subjectPosition++;
-	}
+				// Check need for change in dropoff
+	            if ((dropoff = -ungappedExtension_bestScore) < originalDropoff)
+	            {
+	            	dropoff = originalDropoff;
+	            }
+	        }
+			queryPosition++; subjectPosition++;
+		}
 
-	// Correct for extra increment
-	subjectEnd--;
+		// Correct for extra increment
+		subjectEnd--;
 
-    // Record the point we got to extending forwards
-    ungappedExtension_subjectEndReached = subjectPosition;
+	    // Record the point we got to extending forwards
+	    ungappedExtension_subjectEndReached = subjectPosition;
 
-    // If extension scored above trigger for gapping, create object and return it
-    if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger)
-    {
-    	int4 diagonal;
-        struct ungappedExtension* newUngappedExtension;
-        newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
+	    // If extension scored above trigger for gapping, create object and return it
+	    if (ungappedExtension_bestScore >= blast_ungappedNominalTrigger)
+	    {
+	    	int4 diagonal;
+	        struct ungappedExtension* newUngappedExtension;
+	        newUngappedExtension = memBlocks_newEntry(ungappedExtension_extensions);
 
-        // Calculate diagonal
-        diagonal = (subjectHit - subject) - (queryHit - PSSMatrix.matrix);
+	        // Calculate diagonal
+	        diagonal = (subjectHit - subject) - (queryHit - PSSMatrix.matrix);
 
-        // Determine offsets from pointers
-        newUngappedExtension->start.subjectOffset = subjectStart - subject;
-        newUngappedExtension->end.subjectOffset = subjectEnd - subject;
-        newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
-        newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
+	        // Determine offsets from pointers
+	        newUngappedExtension->start.subjectOffset = subjectStart - subject;
+	        newUngappedExtension->end.subjectOffset = subjectEnd - subject;
+	        newUngappedExtension->start.queryOffset = newUngappedExtension->start.subjectOffset - diagonal;
+	        newUngappedExtension->end.queryOffset = newUngappedExtension->end.subjectOffset - diagonal;
 
-        // Find the seed point
-        newUngappedExtension->seed = ungappedExtension_findProteinSeed(newUngappedExtension, PSSMatrix, subject);
-        // Initialize next to null
-        newUngappedExtension->next = NULL;
-        newUngappedExtension->nominalScore = ungappedExtension_bestScore;
-        newUngappedExtension->status = ungappedExtension_UNGAPPED;
+	        // Find the seed point
+	        newUngappedExtension->seed = ungappedExtension_findProteinSeed(newUngappedExtension, PSSMatrix, subject);
+	        // Initialize next to null
+	        newUngappedExtension->next = NULL;
+	        newUngappedExtension->nominalScore = ungappedExtension_bestScore;
+	        newUngappedExtension->status = ungappedExtension_UNGAPPED;
 
-        return newUngappedExtension;
-    }
-    else
-    {
-    	return NULL;
-    }*/
-    return NULL;
+	        return newUngappedExtension;
+	    }
+	    else
+	    {
+	    	return NULL;
+	    }*/
+	return NULL;
 }
 
 

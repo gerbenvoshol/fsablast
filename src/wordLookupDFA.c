@@ -42,8 +42,8 @@ unsigned char **wordLookupDFA_blockAddresses = NULL;
 void wordLookupDFA_printCodes(int4 codeword, int4 wordLength);
 struct aaFrequencyGroup* wordLookupDFA_calcFrequencyGroups(struct memSingleBlock** groupsHash,
                                      struct PSSMatrix PSSMatrix, int4 numCodes, int4 wordLength);
-inline int4 wordLookupDFA_getCodeword(unsigned char* codes, int4 wordLength);
-inline unsigned char* wordLookupDFA_getCodes(int4 codeword, int4 wordLength);
+int4 wordLookupDFA_getCodeword(unsigned char* codes, int4 wordLength);
+unsigned char* wordLookupDFA_getCodes(int4 codeword, int4 wordLength);
 void wordLookupDFA_getNeighbours(struct PSSMatrix PSSMatrix, int4 queryPosition,
                                  int4* numNeighbours, struct neighbour* neighbours);
 
@@ -79,6 +79,8 @@ void wordLookupDFA_build(struct PSSMatrix PSSMatrix, int4 numCodes, int4 wordLen
     // Maximum number of entry codewords and group codewords
     numWords = ceil(pow(numCodes, wordLength));
 	numGroups = ceil(pow(numCodes, wordLength - 1));
+
+	//printf("numWords: %i\n", numWords);
 
     // Declare memory to construct initial words
 	initialWords = (struct initialWord*)global_malloc(sizeof(struct initialWord)

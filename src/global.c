@@ -38,27 +38,37 @@ char* global_string = NULL;
 // Initialize global variables
 void global_initialize()
 {
-    blast_prepTime = 0; blast_searchTime = 0;
-    blast_gappedScoreTime = 0; blast_gappedExtendTime = 0; blast_finalizeTime = 0;
-    blast_semiGappedScoreTime = 0; blast_copyTime = 0; blast_unpackTime = 0;
+	blast_prepTime = 0;
+	blast_searchTime = 0;
+	blast_gappedScoreTime = 0;
+	blast_gappedExtendTime = 0;
+	blast_finalizeTime = 0;
+	blast_semiGappedScoreTime = 0;
+	blast_copyTime = 0;
+	blast_unpackTime = 0;
 
-    // BLAST statistics
-    blast_numHits = 0;
-    blast_numUngappedExtensions = 0; blast_numTriggerExtensions = 0; blast_numTriggerSequences = 0;
-    blast_numGapped = 0;
-    blast_numSemiGapped = 0;
-    blast_numExtensionsPruned = 0;
-    blast_numExtensionsPruned;
-    blast_numAttemptedJoin = 0; blast_numSuccessfullyJoined = 0;
-    blast_numGoodAlignments = 0;
-    blast_numGoodExtensions = 0;
-    blast_totalUnpacked = 0;
-    blast_totalCopied = 0;
-    blast_numExpandedSequences = 0;
+	// BLAST statistics
+	blast_numHits = 0;
+	blast_numUngappedExtensions = 0;
+	blast_numTriggerExtensions = 0;
+	blast_numTriggerSequences = 0;
+	blast_numGapped = 0;
+	blast_numSemiGapped = 0;
+	blast_numExtensionsPruned = 0;
+	blast_numAttemptedJoin = 0;
+	blast_numSuccessfullyJoined = 0;
+	blast_numGoodAlignments = 0;
+	blast_numGoodExtensions = 0;
+	blast_totalUnpacked = 0;
+	blast_totalCopied = 0;
+	blast_numExpandedSequences = 0;
 
-    // BLAST global variables
-    blast_gappedNominalCutoff = 0; blast_nominalR1cutoff = 0; blast_nominalR2cutoff = 0;
-    blast_dynamicGappedNominalCutoff = 0; blast_dynamicNominalR1cutoff = 0;
+	// BLAST global variables
+	blast_gappedNominalCutoff = 0;
+	blast_nominalR1cutoff = 0;
+	blast_nominalR2cutoff = 0;
+	blast_dynamicGappedNominalCutoff = 0;
+	blast_dynamicNominalR1cutoff = 0;
 
 }
 
@@ -79,14 +89,12 @@ char* global_int4toString(uint4 number)
 	count1 = count2 = 0;
 
 	// Convert number to version with commas
-	while (count1 < length)
-	{
+	while (count1 < length) {
 		global_string[count2] = string1[count1];
 		count1++;
 		count2++;
 
-		if (number >= 10000 && ((length - count1) % 3 == 0 && count1 < length))
-		{
+		if (number >= 10000 && ((length - count1) % 3 == 0 && count1 < length)) {
 			global_string[count2] = ',';
 			count2++;
 		}
@@ -105,7 +113,7 @@ char* global_int8toString(uint8 number)
 	int4 length, count1, count2;
 
 	// Convert integer to string
-	sprintf(string1, "%llu", number);
+	sprintf(string1, "%lu", number);
 	length = strlen(string1);
 
 	// Declare second string large enough to hold number with commas
@@ -115,14 +123,12 @@ char* global_int8toString(uint8 number)
 	count1 = count2 = 0;
 
 	// Convert number to version with commas
-	while (count1 < length)
-	{
+	while (count1 < length) {
 		global_string[count2] = string1[count1];
 		count1++;
 		count2++;
 
-		if (number >= 10000 && ((length - count1) % 3 == 0 && count1 < length))
-		{
+		if (number >= 10000 && ((length - count1) % 3 == 0 && count1 < length)) {
 			global_string[count2] = ',';
 			count2++;
 		}
@@ -147,29 +153,29 @@ void* global_malloc(size_t size)
 {
 	void* newMemory;
 
-    newMemory = malloc(size);
+	newMemory = malloc(size);
 
-//    printf("[%d]\n", size);
+    //printf("[%ld]\n", size);
 
-/*    if (size > 20000000)
-    {
-    	char* a;
-    	a = NULL;
-        *a = 0;
-    }*/
+	/*    if (size > 20000000)
+	    {
+	    	char* a;
+	    	a = NULL;
+	        *a = 0;
+	    }*/
 
-    if (newMemory == NULL && size != 0)
-    {
-    	// Report error allocating memory
-		fprintf(stderr, "Error allocating %d bytes: ", size);
-    	fprintf(stderr, strerror(errno));
-        fprintf(stderr, "\n"); fflush(stderr);
-        exit(-1);
-    }
+	if (newMemory == NULL && size != 0) {
+		// Report error allocating memory
+		fprintf(stderr, "Error allocating %zu bytes: ", size);
+		fprintf(stderr, "%s\n", strerror(errno));
+		fprintf(stderr, "\n");
+		fflush(stderr);
+		exit(-1);
+	}
 
-    global_totalMalloc += size;
+	global_totalMalloc += size;
 
-    return newMemory;
+	return newMemory;
 }
 
 // Realloc memory, check that realloc was successful
@@ -179,17 +185,17 @@ void* global_realloc(void* ptr, size_t size)
 
 //    printf("[%d*]\n", size);
 
-    if (ptr == NULL && size != 0)
-    {
-    	// Report error allocating memory
-		fprintf(stderr, "Error allocating %d bytes: ", size);
-    	fprintf(stderr, strerror(errno));
-        fprintf(stderr, "\n"); fflush(stderr);
-        exit(-1);
-    }
+	if (ptr == NULL && size != 0) {
+		// Report error allocating memory
+		fprintf(stderr, "Error allocating %zu bytes: ", size);
+		fprintf(stderr, "%s\n", strerror(errno));
+		fprintf(stderr, "\n");
+		fflush(stderr);
+		exit(-1);
+	}
 
-    global_totalMalloc += size;
+	global_totalMalloc += size;
 
-    return ptr;
+	return ptr;
 }
 

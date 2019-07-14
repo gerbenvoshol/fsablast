@@ -25,29 +25,26 @@ struct readFile readFile_open(char* filename)
 	struct readFile readFile;
 
 	// Open file for reading
-	if ((readFile.fileDescriptor = open(filename, O_RDONLY)) == -1)
-	{
-        fprintf(stderr, "%s\n", strerror(errno));
+	if ((readFile.fileDescriptor = open(filename, O_RDONLY)) == -1) {
+		fprintf(stderr, "%s\n", strerror(errno));
 		fprintf(stderr, "Error opening file %s for reading\n", filename);
 		exit(-1);
 	}
 
 	// Get length of file
-	if (fstat(readFile.fileDescriptor, &fileStats) == -1)
-	{
-        fprintf(stderr, "%s\n", strerror(errno));
+	if (fstat(readFile.fileDescriptor, &fileStats) == -1) {
+		fprintf(stderr, "%s\n", strerror(errno));
 		fprintf(stderr, "Error opening file %s for reading\n", filename);
 		exit(-1);
 	}
 	readFile.fileSize = fileStats.st_size;
 
-    // Map address to fileSize bytes of application address space
-    readFile.address = mmap(0, readFile.fileSize, PROT_READ, MAP_SHARED, readFile.fileDescriptor, 0);
+	// Map address to fileSize bytes of application address space
+	readFile.address = mmap(0, readFile.fileSize, PROT_READ, MAP_SHARED, readFile.fileDescriptor, 0);
 
-    // Check for error in mapping
-	if (readFile.address == (void*)MAP_FAILED)
-	{
-        fprintf(stderr, "%s\n", strerror(errno));
+	// Check for error in mapping
+	if (readFile.address == (void*)MAP_FAILED) {
+		fprintf(stderr, "%s\n", strerror(errno));
 		fprintf(stderr, "Error opening file %s for reading\n", filename);
 		exit(-1);
 	}
@@ -60,21 +57,19 @@ int readFile_checkOpen(char* filename)
 {
 	FILE* file;
 
-	if ((file = fopen(filename, "r")) != NULL)
-    {
-    	fclose(file);
-        return 1;
-	}
-    else
+	if ((file = fopen(filename, "r")) != NULL) {
+		fclose(file);
+		return 1;
+	} else {
 		return 0;
+	}
 }
 
 // Unmap then close the file
 void readFile_close(struct readFile readFile)
 {
-	if (munmap(readFile.address, readFile.fileSize) < 0)
-	{
-        fprintf(stderr, "%s\n", strerror(errno));
+	if (munmap(readFile.address, readFile.fileSize) < 0) {
+		fprintf(stderr, "%s\n", strerror(errno));
 		fprintf(stderr, "Error unmapping file\n");
 		exit(-1);
 	}

@@ -21,29 +21,27 @@ struct memSingleBlock* memSingleBlock_initialize(size_t entrySize, int4 blockSiz
 {
 	struct memSingleBlock* memSingleBlock;
 
-    // Declare memory for first block
-    memSingleBlock = (struct memSingleBlock*)global_malloc(sizeof(struct memSingleBlock));
+	// Declare memory for first block
+	memSingleBlock = (struct memSingleBlock*)global_malloc(sizeof(struct memSingleBlock));
 
-    if (memSingleBlock == NULL)
-    {
+	if (memSingleBlock == NULL) {
 		fprintf(stderr, "Error allocating memory\n");
 		exit(-1);
-    }
+	}
 
-    memSingleBlock->blockSize = blockSize;
-    memSingleBlock->entrySize = entrySize;
+	memSingleBlock->blockSize = blockSize;
+	memSingleBlock->entrySize = entrySize;
 	memSingleBlock->numEntries = 0;
 
-    // Declare memory for the block
-    memSingleBlock->block = (void*)global_malloc(memSingleBlock->entrySize * memSingleBlock->blockSize);
+	// Declare memory for the block
+	memSingleBlock->block = (void*)global_malloc(memSingleBlock->entrySize * memSingleBlock->blockSize);
 
-    if (memSingleBlock->block == NULL)
-    {
+	if (memSingleBlock->block == NULL) {
 		fprintf(stderr, "Error allocating memory\n");
 		exit(-1);
-    }
+	}
 
-    return memSingleBlock;
+	return memSingleBlock;
 }
 
 // Create the memory block with an initial block size. The struct to hold the
@@ -51,18 +49,17 @@ struct memSingleBlock* memSingleBlock_initialize(size_t entrySize, int4 blockSiz
 void memSingleBlock_initializeExisting(struct memSingleBlock* memSingleBlock,
                                        size_t entrySize, int4 blockSize)
 {
-    memSingleBlock->blockSize = blockSize;
-    memSingleBlock->entrySize = entrySize;
+	memSingleBlock->blockSize = blockSize;
+	memSingleBlock->entrySize = entrySize;
 	memSingleBlock->numEntries = 0;
 
-    // Declare memory for the block
-    memSingleBlock->block = (void*)global_malloc(memSingleBlock->entrySize * memSingleBlock->blockSize);
+	// Declare memory for the block
+	memSingleBlock->block = (void*)global_malloc(memSingleBlock->entrySize * memSingleBlock->blockSize);
 
-    if (memSingleBlock->block == NULL)
-    {
+	if (memSingleBlock->block == NULL) {
 		fprintf(stderr, "Error allocating memory\n");
 		exit(-1);
-    }
+	}
 }
 
 // Get an unused entry from the block
@@ -71,27 +68,25 @@ void* memSingleBlock_newEntry(struct memSingleBlock* memSingleBlock)
 	void* newEntry;
 
 	// Check if we need to increase the block size
-	if (memSingleBlock->numEntries >= memSingleBlock->blockSize)
-	{
-    	// Increase the size
-        memSingleBlock->blockSize *= 2;
+	if (memSingleBlock->numEntries >= memSingleBlock->blockSize) {
+		// Increase the size
+		memSingleBlock->blockSize *= 2;
 
-        memSingleBlock->block = (void*)global_realloc(memSingleBlock->block,
-                                 memSingleBlock->entrySize * memSingleBlock->blockSize);
+		memSingleBlock->block = (void*)global_realloc(memSingleBlock->block,
+		                        memSingleBlock->entrySize * memSingleBlock->blockSize);
 
-        if (memSingleBlock->block == NULL)
-        {
-            fprintf(stderr, "Error allocating memory\n");
-            exit(-1);
-        }
-    }
+		if (memSingleBlock->block == NULL) {
+			fprintf(stderr, "Error allocating memory\n");
+			exit(-1);
+		}
+	}
 
-    // Use the next available slot in the latest block
-    newEntry = ((char*)(memSingleBlock->block)) + memSingleBlock->numEntries * memSingleBlock->entrySize;
+	// Use the next available slot in the latest block
+	newEntry = ((char*)(memSingleBlock->block)) + memSingleBlock->numEntries * memSingleBlock->entrySize;
 
-    memSingleBlock->numEntries++;
+	memSingleBlock->numEntries++;
 
-    return newEntry;
+	return newEntry;
 }
 
 // Reset the current position to the beginning
@@ -105,18 +100,15 @@ void* memSingleBlock_getCurrent(struct memSingleBlock* memSingleBlock)
 {
 	void* entry;
 
-    // If we have reached the last entry return NULL
-    if (memSingleBlock->currentEntry >= memSingleBlock->numEntries)
-    {
-    	return NULL;
-    }
-	else
-    {
-        entry = ((char*)(memSingleBlock->block)) +
-                         memSingleBlock->currentEntry * memSingleBlock->entrySize;
+	// If we have reached the last entry return NULL
+	if (memSingleBlock->currentEntry >= memSingleBlock->numEntries) {
+		return NULL;
+	} else {
+		entry = ((char*)(memSingleBlock->block)) +
+		        memSingleBlock->currentEntry * memSingleBlock->entrySize;
 		memSingleBlock->currentEntry++;
-        return entry;
-    }
+		return entry;
+	}
 }
 
 // Get a specific entry in the block
@@ -131,13 +123,13 @@ void* memSingleBlock_getEntry(struct memSingleBlock* memSingleBlock, int4 positi
 void* memSingleBlock_getLastEntry(struct memSingleBlock* memSingleBlock)
 {
 	return ((char*)(memSingleBlock->block)) +
-            (memSingleBlock->numEntries - 1) * memSingleBlock->entrySize;
+	       (memSingleBlock->numEntries - 1) * memSingleBlock->entrySize;
 }
 
 // Free memory used by the memSingleBlock then the memSingleBlock itself
 void memSingleBlock_free(struct memSingleBlock* memSingleBlock)
 {
 	// Free the memory block then struct itself
-    free(memSingleBlock->block);
-    free(memSingleBlock);
+	free(memSingleBlock->block);
+	free(memSingleBlock);
 }

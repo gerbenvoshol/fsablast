@@ -13,8 +13,7 @@ int main(int argc, char* argv[])
 	char* description;
 	char file[1000];
 
-    if (argc < 3)
-	{
+	if (argc < 3) {
 		printf("Useage: printDescription <database> <dloc>\n");
 		exit(-1);
 	}
@@ -24,5 +23,5 @@ int main(int argc, char* argv[])
 	descriptions_open(file);
 	description = descriptions_getDescription(atoi(argv[2]), 20);
 	printf("%s\n", description);
-    descriptions_close();
+	descriptions_close();
 }

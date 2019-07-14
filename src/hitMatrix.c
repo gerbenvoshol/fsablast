@@ -15,34 +15,31 @@ void hitMatrix_initialize(int4 queryLength, int4 maximumSubjectLength, unsigned 
 	int4 numDiagonals;
 	unsigned char **minOffset, **offset, **maxOffset;
 
-    // Use more memory efficient but slower hit matrix for nucleotide
-    if (encoding_alphabetType == encoding_nucleotide)
-    {
-        // Calculate number of diagonals that will be required during search
-        numDiagonals = 1;
-        while (numDiagonals < queryLength + parameters_wordSize)
-        {
-            numDiagonals <<= 1;
-        }
+	// Use more memory efficient but slower hit matrix for nucleotide
+	if (encoding_alphabetType == encoding_nucleotide) {
+		// Calculate number of diagonals that will be required during search
+		numDiagonals = 1;
+		while (numDiagonals < queryLength + parameters_wordSize) {
+			numDiagonals <<= 1;
+		}
 
-        // Construct mask
-        hitMatrix_diagonalMask = numDiagonals - 1;
+		// Construct mask
+		hitMatrix_diagonalMask = numDiagonals - 1;
 
-        // Declare memory for diagonal slots
-        hitMatrix_furthest = (unsigned char**)global_malloc(sizeof(unsigned char*) * numDiagonals);
-        minOffset = hitMatrix_furthest;
+		// Declare memory for diagonal slots
+		hitMatrix_furthest = (unsigned char**)global_malloc(sizeof(unsigned char*) * numDiagonals);
+		minOffset = hitMatrix_furthest;
 	}
-    // Use less memory efficient but faster hit matrix for protein
-    else
-    {
-        // Maximum number of diagonals that will be required during search
-        numDiagonals = queryLength + maximumSubjectLength - parameters_wordSize + 1;
-        minOffset = (unsigned char**)global_malloc(sizeof(unsigned char*) * numDiagonals);
+	// Use less memory efficient but faster hit matrix for protein
+	else {
+		// Maximum number of diagonals that will be required during search
+		numDiagonals = queryLength + maximumSubjectLength - parameters_wordSize + 1;
+		minOffset = (unsigned char**)global_malloc(sizeof(unsigned char*) * numDiagonals);
 
-        // Advance array pointer to allow offset values ranging from
-        // -queryLength to subjectLength - wordSize
-        hitMatrix_furthest = minOffset + queryLength;
-    }
+		// Advance array pointer to allow offset values ranging from
+		// -queryLength to subjectLength - wordSize
+		hitMatrix_furthest = minOffset + queryLength;
+	}
 
 	// Record query length
 	hitMatrix_queryLength = queryLength;
@@ -52,8 +49,7 @@ void hitMatrix_initialize(int4 queryLength, int4 maximumSubjectLength, unsigned 
 	maxOffset = minOffset + numDiagonals;
 
 	// For each diagonal, reset furthest to address at start of file
-	while (offset < maxOffset)
-	{
+	while (offset < maxOffset) {
 		*offset = startAddress;
 		offset++;
 	}
@@ -65,33 +61,29 @@ void hitMatrix_reinitialize(int4 queryLength, int4 maximumSubjectLength, unsigne
 	int4 numDiagonals;
 	unsigned char **minOffset, **offset, **maxOffset;
 
-    if (encoding_alphabetType == encoding_nucleotide)
-    {
-        // Calculate number of diagonals that will be required during search
-        numDiagonals = 1;
-        while (numDiagonals < queryLength + parameters_wordSize)
-        {
-            numDiagonals <<= 1;
-        }
+	if (encoding_alphabetType == encoding_nucleotide) {
+		// Calculate number of diagonals that will be required during search
+		numDiagonals = 1;
+		while (numDiagonals < queryLength + parameters_wordSize) {
+			numDiagonals <<= 1;
+		}
 
-        minOffset = hitMatrix_furthest;
+		minOffset = hitMatrix_furthest;
 	}
-    // Use less memory efficient but faster hit matrix for protein
-    else
-    {
-        // Maximum number of diagonals that will be required during search
-        numDiagonals = queryLength + maximumSubjectLength - parameters_wordSize + 1;
+	// Use less memory efficient but faster hit matrix for protein
+	else {
+		// Maximum number of diagonals that will be required during search
+		numDiagonals = queryLength + maximumSubjectLength - parameters_wordSize + 1;
 
-        minOffset = hitMatrix_furthest - queryLength;
-    }
+		minOffset = hitMatrix_furthest - queryLength;
+	}
 
 	// Start from smallest possible offset value and iterate through to largest
 	offset = minOffset;
 	maxOffset = minOffset + numDiagonals;
 
 	// For each diagonal, reset furthest to address at start of file
-	while (offset < maxOffset)
-	{
+	while (offset < maxOffset) {
 		*offset = startAddress;
 		offset++;
 	}
@@ -100,7 +92,8 @@ void hitMatrix_reinitialize(int4 queryLength, int4 maximumSubjectLength, unsigne
 // Free the matrix
 void hitMatrix_free()
 {
-    if (encoding_alphabetType == encoding_protein)
+	if (encoding_alphabetType == encoding_protein) {
 		hitMatrix_furthest -= hitMatrix_queryLength;
+	}
 	free(hitMatrix_furthest);
 }

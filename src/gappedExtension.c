@@ -21,10 +21,10 @@ int4 gappedExtension_tracebackAlloc = 0;
 
 // Prototypes
 struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 dropoff,
-       struct coordinate seed, struct unpackRegion* unpackRegion);
+        struct coordinate seed, struct unpackRegion* unpackRegion);
 struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dropoff,
-       struct unpackRegion* unpackRegion, int4 subjectLength,
-       int4 seedSubjectOffset);
+        struct unpackRegion* unpackRegion, int4 subjectLength,
+        int4 seedSubjectOffset);
 struct trace gappedExtension_traceBeforeSeed(struct dpResults beforeDpResults, struct coordinate seed);
 struct trace gappedExtension_traceAfterSeed(struct dpResults beforeDpResults, int4 queryLength);
 struct trace gappedExtension_joinTraces(struct trace beforeTrace, struct trace afterTrace);
@@ -32,46 +32,41 @@ struct trace gappedExtension_joinTraces(struct trace beforeTrace, struct trace a
 // Build a gapped extension with a trace and nominal score from the seed point of an ungapped
 // extension using dynamic programming
 struct gappedExtension* gappedExtension_build(struct ungappedExtension* ungappedExtension,
-                        struct PSSMatrix PSSMatrix, int4 subjectSize, unsigned char* subject,
-                        struct unpackRegion* unpackRegion, int4 dropoff)
+        struct PSSMatrix PSSMatrix, int4 subjectSize, unsigned char* subject,
+        struct unpackRegion* unpackRegion, int4 dropoff)
 {
 	struct coordinate seed;
-	unsigned char *choppedSubject;
 	struct dpResults beforeDpResults, afterDpResults;
 	struct trace beforeTrace, afterTrace, trace;
 	struct PSSMatrix choppedPSSMatrix;
 	int4 choppedSubjectSize;
 	struct gappedExtension* gappedExtension;
-    int4 strandOffset = 0;
+	int4 strandOffset = 0;
 
 	// Perform dynamic programming for points before the seed
 	seed = ungappedExtension->seed;
-    if (seed.queryOffset > PSSMatrix.strandLength)
-    {
-	    // If query position is in the second strand, remove first strand from PSSM
-        strandOffset = PSSMatrix.strandLength;
+	if (seed.queryOffset > PSSMatrix.strandLength) {
+		// If query position is in the second strand, remove first strand from PSSM
+		strandOffset = PSSMatrix.strandLength;
 		seed.queryOffset -= PSSMatrix.strandLength;
 		PSSMatrix = PSSMatrix_chop(PSSMatrix, PSSMatrix.strandLength);
-    }
-    else
-    {
-    	// Otherwise remove second strand
-    	PSSMatrix.length = PSSMatrix.strandLength;
-    }
+	} else {
+		// Otherwise remove second strand
+		PSSMatrix.length = PSSMatrix.strandLength;
+	}
 
-    beforeDpResults = gappedExtension_dpBeforeSeed(PSSMatrix, dropoff, seed, unpackRegion);
+	beforeDpResults = gappedExtension_dpBeforeSeed(PSSMatrix, dropoff, seed, unpackRegion);
 
 	// Trace back and create the trace which specifies the first half of the alignment
 	beforeTrace = gappedExtension_traceBeforeSeed(beforeDpResults, seed);
 
 	// Chop the start off the query and subject so they begin at the seed
 	choppedPSSMatrix = PSSMatrix_chop(PSSMatrix, seed.queryOffset);
-	choppedSubject = subject + seed.subjectOffset;
 	choppedSubjectSize = subjectSize - (seed.subjectOffset);
 
 	// Perform dynamic programming for points after the seed
 	afterDpResults = gappedExtension_dpAfterSeed(choppedPSSMatrix, dropoff, unpackRegion,
-                                                 choppedSubjectSize, seed.subjectOffset);
+	                 choppedSubjectSize, seed.subjectOffset);
 
 	// Trace back to get the trace for the seed onwards
 	afterTrace = gappedExtension_traceAfterSeed(afterDpResults, choppedPSSMatrix.length);
@@ -80,9 +75,9 @@ struct gappedExtension* gappedExtension_build(struct ungappedExtension* ungapped
 	trace = gappedExtension_joinTraces(beforeTrace, afterTrace);
 	free(afterTrace.traceCodes);
 
-    // Adjust coordinates if extension was performed in the second strand
-    afterDpResults.best.queryOffset += strandOffset;
-    beforeDpResults.best.queryOffset += strandOffset;
+	// Adjust coordinates if extension was performed in the second strand
+	afterDpResults.best.queryOffset += strandOffset;
+	beforeDpResults.best.queryOffset += strandOffset;
 	trace.queryStart += strandOffset;
 
 	// Create gapped extension
@@ -102,24 +97,23 @@ struct gappedExtension* gappedExtension_build(struct ungappedExtension* ungapped
 	// Determine score by combining score from the two traces, and the match score at
 	// the seed position
 	gappedExtension->nominalScore = beforeDpResults.bestScore + afterDpResults.bestScore
-	               + choppedPSSMatrix.matrix[0][unpackRegion->unpackedSubject[seed.subjectOffset]];
+	                                + choppedPSSMatrix.matrix[0][unpackRegion->unpackedSubject[seed.subjectOffset]];
 
-    // Update ungappedExtension start/end
-    ungappedExtension->start.queryOffset = trace.queryStart;
-    ungappedExtension->end.queryOffset = gappedExtension->queryEnd;
-    ungappedExtension->start.subjectOffset = trace.subjectStart;
-    ungappedExtension->end.subjectOffset = gappedExtension->subjectEnd;
+	// Update ungappedExtension start/end
+	ungappedExtension->start.queryOffset = trace.queryStart;
+	ungappedExtension->end.queryOffset = gappedExtension->queryEnd;
+	ungappedExtension->start.subjectOffset = trace.subjectStart;
+	ungappedExtension->end.subjectOffset = gappedExtension->subjectEnd;
 	ungappedExtension->nominalScore = gappedExtension->nominalScore;
 
-    #ifdef VERBOSE
-    if (parameters_verboseDloc == blast_dloc)
-    {
-        printf("Gapped Extension from %d,%d to %d,%d score %d\n", trace.queryStart, trace.subjectStart,
-               gappedExtension->queryEnd, gappedExtension->subjectEnd, gappedExtension->nominalScore);
-    }
-    #endif
+#ifdef VERBOSE
+	if (parameters_verboseDloc == blast_dloc) {
+		printf("Gapped Extension from %d,%d to %d,%d score %d\n", trace.queryStart, trace.subjectStart,
+		       gappedExtension->queryEnd, gappedExtension->subjectEnd, gappedExtension->nominalScore);
+	}
+#endif
 
-    return gappedExtension;
+	return gappedExtension;
 }
 
 // Given a gapped extension with a nominal score, calculate the normalized score
@@ -127,10 +121,10 @@ struct gappedExtension* gappedExtension_build(struct ungappedExtension* ungapped
 void gappedExtension_score(struct gappedExtension* gappedExtension)
 {
 	gappedExtension->normalizedScore
-		= statistics_gappedNominal2normalized(gappedExtension->nominalScore);
+	    = statistics_gappedNominal2normalized(gappedExtension->nominalScore);
 
 	gappedExtension->eValue
-		= statistics_gappedCalculateEvalue(gappedExtension->normalizedScore);
+	    = statistics_gappedCalculateEvalue(gappedExtension->normalizedScore);
 }
 
 // Given a gappedExtension and list of ungappedExtensions, prune the latter to
@@ -154,46 +148,38 @@ void gappedExtension_prune(struct gappedExtension* gappedExtension,
 	offset = subjectPosition - queryPosition;
 
 	// For each position in the trace
-	while (count < trace.length)
-	{
+	while (count < trace.length) {
 		// Cycle through ungapped extensions and check if they overlap
 		// with this part of the gapped extension
 		previousExtension = ungappedExtension;
 		currentExtension = ungappedExtension->next;
-		while (currentExtension != NULL)
-		{
+		while (currentExtension != NULL) {
 			// If on same offset, within start and end of the ungappedExtension
 			if (currentExtension->start.subjectOffset -
-                currentExtension->start.queryOffset == offset &&
-			    currentExtension->start.queryOffset <= queryPosition &&
-				currentExtension->end.queryOffset >= queryPosition)
-			{
+			        currentExtension->start.queryOffset == offset &&
+			        currentExtension->start.queryOffset <= queryPosition &&
+			        currentExtension->end.queryOffset >= queryPosition) {
 				// Remove current ungappedExtension from the list
 				previousExtension->next = currentExtension->next;
 				currentExtension = previousExtension->next;
-			}
-			else
-			{
+			} else {
 				previousExtension = currentExtension;
 				currentExtension = currentExtension->next;
 			}
 		}
 
 		// A match
-		if (traceCodes[count] == 0)
-		{
+		if (traceCodes[count] == 0) {
 			queryPosition++;
 			subjectPosition++;
 		}
 		// An insertion wrt. query
-		else if (traceCodes[count] == 1)
-		{
+		else if (traceCodes[count] == 1) {
 			subjectPosition++;
 			offset++;
 		}
 		// An insertion wrt. subject
-		else
-		{
+		else {
 			queryPosition++;
 			offset--;
 		}
@@ -219,8 +205,7 @@ struct trace gappedExtension_joinTraces(struct trace beforeTrace, struct trace a
 
 	// Add after trace codes to end in reverse order
 	count = 0;
-	while (count < afterTrace.length)
-	{
+	while (count < afterTrace.length) {
 		traceCodes[beforeTrace.length + count] = afterTrace.traceCodes[afterTrace.length - count - 1];
 		count++;
 	}
@@ -247,13 +232,12 @@ struct trace gappedExtension_traceBeforeSeed(struct dpResults beforeDpResults, s
 	trace.queryStart = queryPosition = beforeDpResults.best.queryOffset;
 	trace.subjectStart = subjectPosition = beforeDpResults.best.subjectOffset;
 
- // Declare memory for tracecodes; for maximum possible number of codes that could
+// Declare memory for tracecodes; for maximum possible number of codes that could
 	// be generated by this trace
 	traceCodes = (unsigned char*)global_malloc(sizeof(unsigned char) *
 	             (seed.queryOffset - queryPosition + seed.subjectOffset - subjectPosition));
 
-	while (queryPosition < seed.queryOffset && subjectPosition < seed.subjectOffset)
-	{
+	while (queryPosition < seed.queryOffset && subjectPosition < seed.subjectOffset) {
 		// Construct the trace
 		traceCodes[traceCount] = state;
 		traceCount++;
@@ -262,9 +246,8 @@ struct trace gappedExtension_traceBeforeSeed(struct dpResults beforeDpResults, s
 //        printf("(%d,%d)", queryPosition, subjectPosition); fflush(stdout);
 		traceCode = traceback[queryPosition][subjectPosition];
 
-        // If we got to current cell through a MATCH
-		if (state == 0)
-		{
+		// If we got to current cell through a MATCH
+		if (state == 0) {
 			// Move to cell before this one
 			queryPosition++;
 			subjectPosition++;
@@ -277,8 +260,7 @@ struct trace gappedExtension_traceBeforeSeed(struct dpResults beforeDpResults, s
 			state = traceCode;
 		}
 		// If we got to current cell through an Ix
-		else if (state == 1)
-		{
+		else if (state == 1) {
 			// Move to cell before this one
 			subjectPosition++;
 
@@ -290,8 +272,7 @@ struct trace gappedExtension_traceBeforeSeed(struct dpResults beforeDpResults, s
 			state = traceCode;
 		}
 		// If we got to current cell through an Iy
-		else if (state == 2)
-		{
+		else if (state == 2) {
 			// Move to cell before this one
 			queryPosition++;
 
@@ -306,15 +287,13 @@ struct trace gappedExtension_traceBeforeSeed(struct dpResults beforeDpResults, s
 
 	// End trace with insertions needed to get us back to the seed
 	// (most likely none will be required)
-	while (queryPosition < seed.queryOffset)
-	{
+	while (queryPosition < seed.queryOffset) {
 		traceCodes[traceCount] = 2;
 		traceCount++;
 		queryPosition++;
 	}
 
-	while (subjectPosition < seed.subjectOffset)
-	{
+	while (subjectPosition < seed.subjectOffset) {
 		traceCodes[traceCount] = 1;
 		traceCount++;
 		subjectPosition++;
@@ -351,12 +330,10 @@ struct trace gappedExtension_traceAfterSeed(struct dpResults beforeDpResults, in
 	// be generated by this trace
 	traceCodes = (unsigned char*)global_malloc(sizeof(unsigned char) * (queryPosition + subjectPosition));
 
-	while (queryPosition > 0 && subjectPosition > 0)
-	{
+	while (queryPosition > 0 && subjectPosition > 0) {
 		traceCode = traceback[queryPosition][subjectPosition];
 		// If we got to current cell through a MATCH
-		if (state == 0)
-		{
+		if (state == 0) {
 			// Move to cell before this one
 			queryPosition--;
 			subjectPosition--;
@@ -369,8 +346,7 @@ struct trace gappedExtension_traceAfterSeed(struct dpResults beforeDpResults, in
 			state = traceCode;
 		}
 		// If we got to current cell through an Ix
-		else if (state == 1)
-		{
+		else if (state == 1) {
 			// Move to cell before this one
 			subjectPosition--;
 
@@ -382,8 +358,7 @@ struct trace gappedExtension_traceAfterSeed(struct dpResults beforeDpResults, in
 			state = traceCode;
 		}
 		// If we got to current cell through an Iy
-		else if (state == 2)
-		{
+		else if (state == 2) {
 			// Move to cell before this one
 			queryPosition--;
 
@@ -402,15 +377,13 @@ struct trace gappedExtension_traceAfterSeed(struct dpResults beforeDpResults, in
 
 	// End trace with insertions needed to get us back to the seed
 	// (most likely none will be required)
-	while (queryPosition > 0)
-	{
+	while (queryPosition > 0) {
 		traceCodes[traceCount] = 2;
 		traceCount++;
 		queryPosition--;
 	}
 
-	while (subjectPosition > 0)
-	{
+	while (subjectPosition > 0) {
 		traceCodes[traceCount] = 1;
 		traceCount++;
 		subjectPosition--;
@@ -427,7 +400,7 @@ struct trace gappedExtension_traceAfterSeed(struct dpResults beforeDpResults, in
 // Perform dynamic programming to explore possible start points and alignments that end at
 // the given seed
 struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 dropoff,
-       struct coordinate seed, struct unpackRegion* unpackRegion)
+        struct coordinate seed, struct unpackRegion* unpackRegion)
 {
 	int2 **queryPosition, **bestQueryPosition;
 	int2 *matrixColumn;
@@ -441,43 +414,40 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 	int4 previousMatch, previousInsertS;
 	struct dpResults dpResults;
 	unsigned char rightOfDropoff;
-    unsigned char *tracebackDataPtr, *newTracebackData;
+	unsigned char *tracebackDataPtr, *newTracebackData;
 
-    subject = unpackRegion->unpackedSubject;
+	subject = unpackRegion->unpackedSubject;
 
-	if (gappedExtension_matchRow == NULL)
-    {
-        // Declare processing rows for storing match, insert-subject and insert-query values
+	if (gappedExtension_matchRow == NULL) {
+		// Declare processing rows for storing match, insert-subject and insert-query values
 		gappedExtension_rowSizes = 2 * statistics_gappedFinalNominalDropoff / parameters_extendGap;
 
 		// Malloc new rows
 		gappedExtension_matchRow = (int4*)global_malloc(sizeof(int4) * gappedExtension_rowSizes);
 		gappedExtension_insertQrow = (int4*)global_malloc(sizeof(int4) * gappedExtension_rowSizes);
 		gappedExtension_insertSrow = (int4*)global_malloc(sizeof(int4) * gappedExtension_rowSizes);
-    }
+	}
 
 	// Determine lowest score before dropoff
 	dropoffThreshold = -dropoff;
 
-    // If more rows are required
-    if (seed.queryOffset > gappedExtension_numRows)
-    {
-        // Increase number of row pointers
-    	gappedExtension_numRows = seed.queryOffset;
-        gappedExtension_traceback = (unsigned char**)global_realloc(gappedExtension_traceback,
-                                    sizeof(unsigned char*) * (gappedExtension_numRows));
-    }
+	// If more rows are required
+	if (seed.queryOffset > gappedExtension_numRows) {
+		// Increase number of row pointers
+		gappedExtension_numRows = seed.queryOffset;
+		gappedExtension_traceback = (unsigned char**)global_realloc(gappedExtension_traceback,
+		                            sizeof(unsigned char*) * (gappedExtension_numRows));
+	}
 
-    // If first time, initialize traceback rows
-    if (gappedExtension_tracebackData == NULL)
-    {
-    	gappedExtension_tracebackAlloc = constants_initialTracebackAlloc;
+	// If first time, initialize traceback rows
+	if (gappedExtension_tracebackData == NULL) {
+		gappedExtension_tracebackAlloc = constants_initialTracebackAlloc;
 		gappedExtension_tracebackData = global_malloc(sizeof(char) * gappedExtension_tracebackAlloc);
-    }
+	}
 
-    tracebackDataPtr = gappedExtension_tracebackData + gappedExtension_tracebackAlloc - 1;
+	tracebackDataPtr = gappedExtension_tracebackData + gappedExtension_tracebackAlloc - 1;
 
-    bestSubjectPosition = subjectPosition = subject + seed.subjectOffset - 1;
+	bestSubjectPosition = subjectPosition = subject + seed.subjectOffset - 1;
 	bestQueryPosition = queryPosition = PSSMatrix.matrix + seed.queryOffset - 1;
 
 	// Initialize row pointers
@@ -490,30 +460,30 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 	rowDropoff = subject;
 	columnDropoff = subject + seed.subjectOffset;
 
-    // Calculate minimum row dropoff after this row is processed
-    minRowDropoff = columnDropoff - ((dropoff / parameters_extendGap) + 2);
-    if (minRowDropoff < subject)
-        minRowDropoff = subject;
+	// Calculate minimum row dropoff after this row is processed
+	minRowDropoff = columnDropoff - ((dropoff / parameters_extendGap) + 2);
+	if (minRowDropoff < subject) {
+		minRowDropoff = subject;
+	}
 
-    // Unpack more of the subject if required
-    unpack_extendRegionStart(minRowDropoff - subject, unpackRegion);
+	// Unpack more of the subject if required
+	unpack_extendRegionStart(minRowDropoff - subject, unpackRegion);
 
-    // If the unpacked subject has moved in memory
-    if (subject != unpackRegion->unpackedSubject)
-    {
-        // Update all pointers to point at the new subject
-        subjectPosition = (subjectPosition - subject) + unpackRegion->unpackedSubject;
-        rowDropoff = (rowDropoff - subject) + unpackRegion->unpackedSubject;
-        columnDropoff = (columnDropoff - subject) + unpackRegion->unpackedSubject;
-        bestSubjectPosition = (bestSubjectPosition - subject) + unpackRegion->unpackedSubject;
-        subject = unpackRegion->unpackedSubject;
-    }
+	// If the unpacked subject has moved in memory
+	if (subject != unpackRegion->unpackedSubject) {
+		// Update all pointers to point at the new subject
+		subjectPosition = (subjectPosition - subject) + unpackRegion->unpackedSubject;
+		rowDropoff = (rowDropoff - subject) + unpackRegion->unpackedSubject;
+		columnDropoff = (columnDropoff - subject) + unpackRegion->unpackedSubject;
+		bestSubjectPosition = (bestSubjectPosition - subject) + unpackRegion->unpackedSubject;
+		subject = unpackRegion->unpackedSubject;
+	}
 
-    // Initialize traceback pointer for this row
+	// Initialize traceback pointer for this row
 	tracebackRow = gappedExtension_traceback + (queryPosition - PSSMatrix.matrix);
 	*tracebackRow = tracebackDataPtr - (subjectPosition - subject);
-    tracebackColumn = tracebackDataPtr;
-    tracebackDataPtr -= (subjectPosition - minRowDropoff + 1);
+	tracebackColumn = tracebackDataPtr;
+	tracebackDataPtr -= (subjectPosition - minRowDropoff + 1);
 
 	// -----FIRST ROW-----
 
@@ -533,8 +503,7 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 	*tracebackColumn = 0;
 
 	// If this is the best-yet scoring cell
-	if (match > bestScore)
-	{
+	if (match > bestScore) {
 		// Update best start cell data
 		bestScore = *matchRow;
 		dropoffThreshold = bestScore - dropoff;
@@ -547,34 +516,33 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 	previousInsertS = *insertSrow;
 
 	subjectDistance = 0;
-	subjectPosition--; matchRow--; insertSrow--; insertQrow--; tracebackColumn--;
+	subjectPosition--;
+	matchRow--;
+	insertSrow--;
+	insertQrow--;
+	tracebackColumn--;
 
-    // Check for scoring row wrap-around
-    if (matchRow < gappedExtension_matchRow)
-    {
+	// Check for scoring row wrap-around
+	if (matchRow < gappedExtension_matchRow) {
 		matchRow += gappedExtension_rowSizes;
 		insertSrow += gappedExtension_rowSizes;
 		insertQrow += gappedExtension_rowSizes;
-    }
+	}
 
 	// ----- REMAINING CELLS -----
 	// For each remaining column in the bottom row, scanning from right-to-left
-	while (subjectPosition >= subject)
-	{
+	while (subjectPosition >= subject) {
 		// Set value for M
 		match = matrixColumn[*subjectPosition]
-		      - parameters_openGap - subjectDistance * parameters_extendGap;
+		        - parameters_openGap - subjectDistance * parameters_extendGap;
 		*matchRow = match;
 
 		// Set value for Ix
-		if (previousInsertS - parameters_extendGap > previousMatch - parameters_openGap)
-		{
+		if (previousInsertS - parameters_extendGap > previousMatch - parameters_openGap) {
 			*insertSrow = previousInsertS - parameters_extendGap;
 			// M came from Ix and Ix came from Ix
 			*tracebackColumn = 5;
-		}
-		else
-		{
+		} else {
 			*insertSrow = previousMatch - parameters_openGap;
 			// M came from Ix and Ix came from M
 			*tracebackColumn = 1;
@@ -584,8 +552,7 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 		*insertQrow = constants_gappedExtensionDummyValue;
 
 		// If this is the best-yet scoring cell
-		if (match > bestScore)
-		{
+		if (match > bestScore) {
 			// Update best start cell data
 			bestScore = match;
 			dropoffThreshold = bestScore - dropoff;
@@ -595,8 +562,7 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 
 		// If score at current cell is below dropoff
 		if (dropoffThreshold > match &&
-		    dropoffThreshold > *insertSrow)
-		{
+		        dropoffThreshold > *insertSrow) {
 			// Record dropoff position
 			rowDropoff = subjectPosition;
 			// And stop processing row
@@ -607,15 +573,18 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 		previousMatch = match;
 		previousInsertS = *insertSrow;
 
-		subjectPosition--; matchRow--; insertSrow--; insertQrow--; tracebackColumn--;
+		subjectPosition--;
+		matchRow--;
+		insertSrow--;
+		insertQrow--;
+		tracebackColumn--;
 
-        // Check for scoring row wrap-around
-        if (matchRow < gappedExtension_matchRow)
-        {
-            matchRow += gappedExtension_rowSizes;
-            insertSrow += gappedExtension_rowSizes;
-            insertQrow += gappedExtension_rowSizes;
-        }
+		// Check for scoring row wrap-around
+		if (matchRow < gappedExtension_matchRow) {
+			matchRow += gappedExtension_rowSizes;
+			insertSrow += gappedExtension_rowSizes;
+			insertQrow += gappedExtension_rowSizes;
+		}
 
 		subjectDistance++;
 	}
@@ -625,71 +594,69 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 	queryDistance = 0;
 
 	// -----REMAINING ROWS-----
-	while (queryPosition > PSSMatrix.matrix && rowDropoff < columnDropoff)
-	{
-		queryPosition--; tracebackRow--;
+	while (queryPosition > PSSMatrix.matrix && rowDropoff < columnDropoff) {
+		queryPosition--;
+		tracebackRow--;
 		subjectPosition = columnDropoff - 1;
 
-        // Calculate minimum row dropoff after this row is processed
-        minRowDropoff = rowDropoff - ((PSSMatrix.highestValue / parameters_extendGap) + 2);
-        if (minRowDropoff < subject)
-        	minRowDropoff = subject;
+		// Calculate minimum row dropoff after this row is processed
+		minRowDropoff = rowDropoff - ((PSSMatrix.highestValue / parameters_extendGap) + 2);
+		if (minRowDropoff < subject) {
+			minRowDropoff = subject;
+		}
 
-        // If not enough space in traceback data for this row, realloc
-        if (subjectPosition - minRowDropoff >= tracebackDataPtr - gappedExtension_tracebackData)
-        {
+		// If not enough space in traceback data for this row, realloc
+		if (subjectPosition - minRowDropoff >= tracebackDataPtr - gappedExtension_tracebackData) {
 			newTracebackData = (unsigned char*)global_malloc(sizeof(char) * gappedExtension_tracebackAlloc * 2);
 
-            // Move existing data to end of new block
-            memcpy(newTracebackData + gappedExtension_tracebackAlloc,
-                   gappedExtension_tracebackData, gappedExtension_tracebackAlloc);
+			// Move existing data to end of new block
+			memcpy(newTracebackData + gappedExtension_tracebackAlloc,
+			       gappedExtension_tracebackData, gappedExtension_tracebackAlloc);
 
-            // Update traceback data pointer
+			// Update traceback data pointer
 			tracebackDataPtr = newTracebackData + gappedExtension_tracebackAlloc
-                              + (tracebackDataPtr - gappedExtension_tracebackData);
+			                   + (tracebackDataPtr - gappedExtension_tracebackData);
 
-            // Update existing rows to point to new data block
-			while (tracebackRow < gappedExtension_traceback + seed.queryOffset - 1)
-            {
+			// Update existing rows to point to new data block
+			while (tracebackRow < gappedExtension_traceback + seed.queryOffset - 1) {
 				tracebackRow++;
-            	*tracebackRow = newTracebackData + gappedExtension_tracebackAlloc
-                              + (*tracebackRow - gappedExtension_tracebackData);
-            }
+				*tracebackRow = newTracebackData + gappedExtension_tracebackAlloc
+				                + (*tracebackRow - gappedExtension_tracebackData);
+			}
 
-            // Data block is now double the size
-            gappedExtension_tracebackAlloc *= 2;
+			// Data block is now double the size
+			gappedExtension_tracebackAlloc *= 2;
 
-            free(gappedExtension_tracebackData);
-            gappedExtension_tracebackData = newTracebackData;
-        }
+			free(gappedExtension_tracebackData);
+			gappedExtension_tracebackData = newTracebackData;
+		}
 
-        // Initialize traceback pointer for this row
-        tracebackRow = gappedExtension_traceback + (queryPosition - PSSMatrix.matrix);
-        *tracebackRow = tracebackDataPtr - (subjectPosition - subject);
-        tracebackColumn = tracebackDataPtr;
-        tracebackDataPtr -= (subjectPosition - minRowDropoff + 1);
+		// Initialize traceback pointer for this row
+		tracebackRow = gappedExtension_traceback + (queryPosition - PSSMatrix.matrix);
+		*tracebackRow = tracebackDataPtr - (subjectPosition - subject);
+		tracebackColumn = tracebackDataPtr;
+		tracebackDataPtr -= (subjectPosition - minRowDropoff + 1);
 
 		// Unpack more of the subject if required
-        unpack_extendRegionStart(minRowDropoff - subject, unpackRegion);
+		unpack_extendRegionStart(minRowDropoff - subject, unpackRegion);
 
-        // If the unpacked subject has moved in memory
-        if (subject != unpackRegion->unpackedSubject)
-        {
-        	// Update all pointers to point at the new subject
-        	subjectPosition = (subjectPosition - subject) + unpackRegion->unpackedSubject;
+		// If the unpacked subject has moved in memory
+		if (subject != unpackRegion->unpackedSubject) {
+			// Update all pointers to point at the new subject
+			subjectPosition = (subjectPosition - subject) + unpackRegion->unpackedSubject;
 			rowDropoff = (rowDropoff - subject) + unpackRegion->unpackedSubject;
 			columnDropoff = (columnDropoff - subject) + unpackRegion->unpackedSubject;
-            bestSubjectPosition = (bestSubjectPosition - subject) + unpackRegion->unpackedSubject;
-            subject = unpackRegion->unpackedSubject;
-        }
+			bestSubjectPosition = (bestSubjectPosition - subject) + unpackRegion->unpackedSubject;
+			subject = unpackRegion->unpackedSubject;
+		}
 
-        // Reset row pointers to start of rows
+		// Reset row pointers to start of rows
 		rowOffset = (subjectPosition - subject);
-        matchRow = gappedExtension_matchRow + (rowOffset % gappedExtension_rowSizes);
-        insertQrow = gappedExtension_insertQrow + (rowOffset % gappedExtension_rowSizes);
-        insertSrow = gappedExtension_insertSrow + (rowOffset % gappedExtension_rowSizes);
+		matchRow = gappedExtension_matchRow + (rowOffset % gappedExtension_rowSizes);
+		insertQrow = gappedExtension_insertQrow + (rowOffset % gappedExtension_rowSizes);
+		insertSrow = gappedExtension_insertSrow + (rowOffset % gappedExtension_rowSizes);
 
-        // Using next column of query matrix
+		// Using next column of query matrix
 		matrixColumn = *queryPosition;
 
 		// -----FAR RIGHT CELL-----
@@ -699,14 +666,11 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 		previousOldInsertS = *insertSrow;
 
 		// Set Iy value
-		if (*insertQrow - parameters_extendGap > *matchRow - parameters_openGap)
-		{
+		if (*insertQrow - parameters_extendGap > *matchRow - parameters_openGap) {
 			*insertQrow = *insertQrow - parameters_extendGap;
 			// Iy is derived from Iy, M is derived from Iy
 			*tracebackColumn = 34;
-		}
-		else
-		{
+		} else {
 			*insertQrow = *matchRow - parameters_openGap;
 			// Iy is derived from M, M is derived from Iy
 			*tracebackColumn = 2;
@@ -717,14 +681,11 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 		*insertSrow = constants_gappedExtensionDummyValue;
 
 		// If score at current cell is below dropoff
-		if (dropoffThreshold > *insertQrow)
-		{
+		if (dropoffThreshold > *insertQrow) {
 			// Record dropoff position
 			columnDropoff = subjectPosition;
 			rightOfDropoff = 1;
-		}
-		else
-		{
+		} else {
 			// We are left of the column dropoff for this row
 			rightOfDropoff = 0;
 		}
@@ -733,48 +694,41 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 		previousMatch = match;
 		previousInsertS = *insertSrow;
 
-		subjectPosition--; matchRow--; insertSrow--; insertQrow--; tracebackColumn--;
+		subjectPosition--;
+		matchRow--;
+		insertSrow--;
+		insertQrow--;
+		tracebackColumn--;
 
-        // Check for scoring row wrap-around
-        if (matchRow < gappedExtension_matchRow)
-        {
-            matchRow += gappedExtension_rowSizes;
-            insertSrow += gappedExtension_rowSizes;
-            insertQrow += gappedExtension_rowSizes;
-        }
+		// Check for scoring row wrap-around
+		if (matchRow < gappedExtension_matchRow) {
+			matchRow += gappedExtension_rowSizes;
+			insertSrow += gappedExtension_rowSizes;
+			insertQrow += gappedExtension_rowSizes;
+		}
 
-        // -----CELLS RIGHT OF ROW DROPOFF-----
-		while (subjectPosition >= rowDropoff)
-		{
+		// -----CELLS RIGHT OF ROW DROPOFF-----
+		while (subjectPosition >= rowDropoff) {
 			// Remember old M value (for cell below this one)
 			oldMatch = *matchRow;
 
 			// Calculate new M value
-			if (previousOldMatch >= previousOldInsertQ)
-			{
-				if (previousOldMatch >= previousOldInsertS)
-				{
+			if (previousOldMatch >= previousOldInsertQ) {
+				if (previousOldMatch >= previousOldInsertS) {
 					match = matrixColumn[*subjectPosition] + previousOldMatch;
 					// M is derived from M
 					*tracebackColumn = 0;
-				}
-				else
-				{
+				} else {
 					match = matrixColumn[*subjectPosition] + previousOldInsertS;
 					// M is derived from Ix
 					*tracebackColumn = 1;
 				}
-			}
-			else
-			{
-				if (previousOldInsertQ >= previousOldInsertS)
-				{
+			} else {
+				if (previousOldInsertQ >= previousOldInsertS) {
 					match = matrixColumn[*subjectPosition] + previousOldInsertQ;
 					// M is derived from Iy
 					*tracebackColumn = 2;
-				}
-				else
-				{
+				} else {
 					match = matrixColumn[*subjectPosition] + previousOldInsertS;
 					// M is derived from Ix
 					*tracebackColumn = 1;
@@ -789,35 +743,28 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 			previousOldInsertS = *insertSrow;
 
 			// Set new Iy value
-			if (oldMatch - parameters_openGap >= *insertQrow - parameters_extendGap)
-			{
+			if (oldMatch - parameters_openGap >= *insertQrow - parameters_extendGap) {
 				*insertQrow = oldMatch - parameters_openGap;
 				// Iy is derived from M
 				// No change to traceback
-			}
-			else
-			{
+			} else {
 				*insertQrow = *insertQrow - parameters_extendGap;
 				// Iy is derived from Iy
 				*tracebackColumn |= 32;
 			}
 			// Calculate new Ix
-			if (previousMatch - parameters_openGap >= previousInsertS - parameters_extendGap)
-			{
+			if (previousMatch - parameters_openGap >= previousInsertS - parameters_extendGap) {
 				*insertSrow = previousMatch - parameters_openGap;
 				// Ix is derived from M
 				// No change to traceback
-			}
-			else
-			{
+			} else {
 				*insertSrow = previousInsertS - parameters_extendGap;
 				// Ix is derived from Ix
 				*tracebackColumn |= 4;
 			}
 
 			// If this is the best-yet scoring cell
-			if (match > bestScore)
-			{
+			if (match > bestScore) {
 				// Update best start cell data
 				bestScore = match;
 				dropoffThreshold = bestScore - dropoff;
@@ -826,17 +773,13 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 			}
 
 			// If score at current cell (and cells to its right) are below dropoff
-			if (rightOfDropoff)
-			{
+			if (rightOfDropoff) {
 				if (dropoffThreshold > match &&
-					dropoffThreshold > *insertSrow &&
-					dropoffThreshold > *insertQrow)
-				{
+				        dropoffThreshold > *insertSrow &&
+				        dropoffThreshold > *insertQrow) {
 					// Record dropoff position
 					columnDropoff = subjectPosition;
-				}
-				else
-				{
+				} else {
 					// We are left of the column dropoff for this row
 					rightOfDropoff = 0;
 				}
@@ -845,26 +788,27 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 			// Record match and insertS for this about-to-be-previous cell
 			previousMatch = match;
 			previousInsertS = *insertSrow;
-            previousInsertQ = *insertQrow;
+			previousInsertQ = *insertQrow;
 
-			subjectPosition--; matchRow--; insertSrow--; insertQrow--; tracebackColumn--;
+			subjectPosition--;
+			matchRow--;
+			insertSrow--;
+			insertQrow--;
+			tracebackColumn--;
 
-            // Check for scoring row wrap-around
-            if (matchRow < gappedExtension_matchRow)
-            {
-                matchRow += gappedExtension_rowSizes;
-                insertSrow += gappedExtension_rowSizes;
-                insertQrow += gappedExtension_rowSizes;
-            }
+			// Check for scoring row wrap-around
+			if (matchRow < gappedExtension_matchRow) {
+				matchRow += gappedExtension_rowSizes;
+				insertSrow += gappedExtension_rowSizes;
+				insertQrow += gappedExtension_rowSizes;
+			}
 		}
 
-        // -----CELLS LEFT OF ROW DROPOFF -----
+		// -----CELLS LEFT OF ROW DROPOFF -----
 		if (!(dropoffThreshold > previousMatch &&
-			dropoffThreshold > previousInsertS &&
-			dropoffThreshold > previousInsertQ))
-		{
-			while (subjectPosition >= subject)
-			{
+		        dropoffThreshold > previousInsertS &&
+		        dropoffThreshold > previousInsertQ)) {
+			while (subjectPosition >= subject) {
 				// Set value for Ix
 				*insertSrow = previousInsertS - parameters_extendGap;
 				// Ix came from Ix
@@ -875,8 +819,7 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 				*insertQrow = constants_gappedExtensionDummyValue;
 
 				// If score at current cell is below dropoff
-				if (dropoffThreshold > *insertSrow)
-				{
+				if (dropoffThreshold > *insertSrow) {
 					// Stop processing row
 					subjectPosition--;
 					break;
@@ -885,15 +828,18 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 				// Record match and insertS for this about-to-be-previous cell
 				previousInsertS = *insertSrow;
 
-				subjectPosition--; matchRow--; insertSrow--; insertQrow--; tracebackColumn--;
+				subjectPosition--;
+				matchRow--;
+				insertSrow--;
+				insertQrow--;
+				tracebackColumn--;
 
-                // Check for scoring row wrap-around
-                if (matchRow < gappedExtension_matchRow)
-                {
-                    matchRow += gappedExtension_rowSizes;
-                    insertSrow += gappedExtension_rowSizes;
-                    insertQrow += gappedExtension_rowSizes;
-                }
+				// Check for scoring row wrap-around
+				if (matchRow < gappedExtension_matchRow) {
+					matchRow += gappedExtension_rowSizes;
+					insertSrow += gappedExtension_rowSizes;
+					insertQrow += gappedExtension_rowSizes;
+				}
 
 				subjectDistance++;
 			}
@@ -918,7 +864,7 @@ struct dpResults gappedExtension_dpBeforeSeed(struct PSSMatrix PSSMatrix, int4 d
 // Perform dynamic programming to explore possible END points and alignments that start at
 // the given seed
 struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dropoff,
-       struct unpackRegion* unpackRegion, int4 subjectLength, int4 seedSubjectOffset)
+        struct unpackRegion* unpackRegion, int4 subjectLength, int4 seedSubjectOffset)
 {
 	int2 **queryPosition, **bestQueryPosition, **queryEnd;
 	int2 *matrixColumn;
@@ -933,30 +879,29 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 	struct dpResults dpResults;
 	unsigned char leftOfDropoff;
 	int4 queryLength;
-    unsigned char *tracebackDataPtr, *newTracebackData;
+	unsigned char *tracebackDataPtr, *newTracebackData;
 
-    subject = unpackRegion->unpackedSubject + seedSubjectOffset;
+	subject = unpackRegion->unpackedSubject + seedSubjectOffset;
 
-    queryLength = PSSMatrix.length;
+	queryLength = PSSMatrix.length;
 	subjectEnd = subject + subjectLength;
 	queryEnd = PSSMatrix.matrix + queryLength;
-    endMatchRow = gappedExtension_matchRow + gappedExtension_rowSizes;
+	endMatchRow = gappedExtension_matchRow + gappedExtension_rowSizes;
 
 	// Determine lowest score before dropoff
 	dropoffThreshold = -dropoff;
 
-    // If more rows are required
-    if (queryLength > gappedExtension_numRows)
-    {
-        // Increase number of row pointers
-    	gappedExtension_numRows = queryLength;
-        gappedExtension_traceback = (unsigned char**)global_realloc(gappedExtension_traceback,
-                                    sizeof(unsigned char*) * (gappedExtension_numRows));
-    }
+	// If more rows are required
+	if (queryLength > gappedExtension_numRows) {
+		// Increase number of row pointers
+		gappedExtension_numRows = queryLength;
+		gappedExtension_traceback = (unsigned char**)global_realloc(gappedExtension_traceback,
+		                            sizeof(unsigned char*) * (gappedExtension_numRows));
+	}
 
-    tracebackDataPtr = gappedExtension_tracebackData;
+	tracebackDataPtr = gappedExtension_tracebackData;
 
-    bestSubjectPosition = subjectPosition = subject + 1;
+	bestSubjectPosition = subjectPosition = subject + 1;
 	bestQueryPosition = queryPosition = PSSMatrix.matrix + 1;
 
 	// Initialize rows
@@ -968,34 +913,34 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 	rowDropoff = subject + subjectLength - 1;
 	columnDropoff = subject;
 
-    // Calculate maximum row dropoff after this row is processed
-    maxRowDropoff = columnDropoff + ((dropoff / parameters_extendGap) + 2);
-    if (maxRowDropoff > subjectEnd)
-        maxRowDropoff = subjectEnd;
+	// Calculate maximum row dropoff after this row is processed
+	maxRowDropoff = columnDropoff + ((dropoff / parameters_extendGap) + 2);
+	if (maxRowDropoff > subjectEnd) {
+		maxRowDropoff = subjectEnd;
+	}
 
-    // Initialize traceback pointer for this row
+	// Initialize traceback pointer for this row
 	tracebackRow = gappedExtension_traceback + (queryPosition - PSSMatrix.matrix);
 	*tracebackRow = tracebackDataPtr - (subjectPosition - subject);
-    tracebackColumn = tracebackDataPtr;
-    tracebackDataPtr += (maxRowDropoff - subjectPosition + 1);
+	tracebackColumn = tracebackDataPtr;
+	tracebackDataPtr += (maxRowDropoff - subjectPosition + 1);
 
-    // Unpack more of the subject if required
-    unpack_extendRegionEnd(maxRowDropoff - subject + seedSubjectOffset, unpackRegion);
+	// Unpack more of the subject if required
+	unpack_extendRegionEnd(maxRowDropoff - subject + seedSubjectOffset, unpackRegion);
 
-    // If the unpacked subject has moved in memory
-    if (subject != unpackRegion->unpackedSubject + seedSubjectOffset)
-    {
-        // Update all pointers to point at the new subject
-        newSubject = unpackRegion->unpackedSubject + seedSubjectOffset;
-        subjectPosition = (subjectPosition - subject) + newSubject;
-        rowDropoff = (rowDropoff - subject) + newSubject;
-        columnDropoff = (columnDropoff - subject) + newSubject;
-        bestSubjectPosition = (bestSubjectPosition - subject) + newSubject;
-        subject = newSubject;
-        subjectEnd = subject + subjectLength;
-    }
+	// If the unpacked subject has moved in memory
+	if (subject != unpackRegion->unpackedSubject + seedSubjectOffset) {
+		// Update all pointers to point at the new subject
+		newSubject = unpackRegion->unpackedSubject + seedSubjectOffset;
+		subjectPosition = (subjectPosition - subject) + newSubject;
+		rowDropoff = (rowDropoff - subject) + newSubject;
+		columnDropoff = (columnDropoff - subject) + newSubject;
+		bestSubjectPosition = (bestSubjectPosition - subject) + newSubject;
+		subject = newSubject;
+		subjectEnd = subject + subjectLength;
+	}
 
-    // -----FIRST ROW-----
+	// -----FIRST ROW-----
 
 	// Using first column of the query matrix
 	matrixColumn = (*queryPosition);
@@ -1011,8 +956,7 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 	*tracebackColumn = 0;
 
 	// If this is the best-yet scoring cell
-	if (match > bestScore)
-	{
+	if (match > bestScore) {
 		// Update best start cell data
 		bestScore = match;
 		dropoffThreshold = bestScore - dropoff;
@@ -1025,27 +969,27 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 	previousInsertS = *insertSrow;
 
 	subjectDistance = 0;
-	subjectPosition++; matchRow++; insertQrow++; insertSrow++; tracebackColumn++;
+	subjectPosition++;
+	matchRow++;
+	insertQrow++;
+	insertSrow++;
+	tracebackColumn++;
 
 	// ----- REMAINING CELLS -----
 	// For each remaining columns in the top row, scanning from left-to-right
-	while (subjectPosition < subjectEnd)
-	{
+	while (subjectPosition < subjectEnd) {
 		// Set value for M
 		match = matrixColumn[*subjectPosition]
-		      - parameters_openGap - subjectDistance * parameters_extendGap;
+		        - parameters_openGap - subjectDistance * parameters_extendGap;
 		*matchRow = match;
 
 		// Set value for Ix
 		if (previousInsertS - parameters_extendGap >
-			previousMatch - parameters_openGap)
-		{
+		        previousMatch - parameters_openGap) {
 			*insertSrow = previousInsertS - parameters_extendGap;
 			// M came from Ix and Ix came from Ix
 			*tracebackColumn = 5;
-		}
-		else
-		{
+		} else {
 			*insertSrow = previousMatch - parameters_openGap;
 			// M came from Ix and Ix came from M
 			*tracebackColumn = 1;
@@ -1055,8 +999,7 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 		*insertQrow = constants_gappedExtensionDummyValue;
 
 		// If this is the best-yet scoring cell
-		if (match > bestScore)
-		{
+		if (match > bestScore) {
 			// Update best start cell data
 			bestScore = match;
 			dropoffThreshold = bestScore - dropoff;
@@ -1066,8 +1009,7 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 
 		// If score at current cell is below dropoff
 		if (dropoffThreshold > match &&
-		    dropoffThreshold > *insertSrow)
-		{
+		        dropoffThreshold > *insertSrow) {
 			// Record dropoff position
 			rowDropoff = subjectPosition;
 			// And stop processing row
@@ -1078,7 +1020,11 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 		previousMatch = match;
 		previousInsertS = *insertSrow;
 
-		subjectPosition++; matchRow++; insertQrow++; insertSrow++; tracebackColumn++;
+		subjectPosition++;
+		matchRow++;
+		insertQrow++;
+		insertSrow++;
+		tracebackColumn++;
 		subjectDistance++;
 	}
 
@@ -1086,71 +1032,69 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 //    print2(gappedExtension_matchRow, subject, rowDropoff, columnDropoff);
 
 	queryDistance = 0;
-	queryPosition++; tracebackRow++;
+	queryPosition++;
+	tracebackRow++;
 
 	// -----REMAINING ROWS-----
-	while (queryPosition < queryEnd && rowDropoff > columnDropoff)
-	{
+	while (queryPosition < queryEnd && rowDropoff > columnDropoff) {
 		subjectPosition = columnDropoff + 1;
 
-        // Calculate maximum row dropoff after this row is processed
-        maxRowDropoff = rowDropoff + ((PSSMatrix.highestValue / parameters_extendGap) + 2);
-        if (maxRowDropoff > subjectEnd)
-        	maxRowDropoff = subjectEnd;
+		// Calculate maximum row dropoff after this row is processed
+		maxRowDropoff = rowDropoff + ((PSSMatrix.highestValue / parameters_extendGap) + 2);
+		if (maxRowDropoff > subjectEnd) {
+			maxRowDropoff = subjectEnd;
+		}
 
-        // If not enough space in traceback data for this row, realloc
-        if (maxRowDropoff - subjectPosition >= gappedExtension_tracebackAlloc -
-            (tracebackDataPtr - gappedExtension_tracebackData))
-        {
+		// If not enough space in traceback data for this row, realloc
+		if (maxRowDropoff - subjectPosition >= gappedExtension_tracebackAlloc -
+		        (tracebackDataPtr - gappedExtension_tracebackData)) {
 			newTracebackData = (unsigned char*)global_malloc(sizeof(char) * gappedExtension_tracebackAlloc * 2);
 
-            // Move existing data to end of new block
-            memcpy(newTracebackData, gappedExtension_tracebackData, gappedExtension_tracebackAlloc);
+			// Move existing data to end of new block
+			memcpy(newTracebackData, gappedExtension_tracebackData, gappedExtension_tracebackAlloc);
 
-            // Update traceback data pointer
+			// Update traceback data pointer
 			tracebackDataPtr = newTracebackData + (tracebackDataPtr - gappedExtension_tracebackData);
 
-            // Update existing rows to point to new data block
-			while (tracebackRow > gappedExtension_traceback)
-            {
+			// Update existing rows to point to new data block
+			while (tracebackRow > gappedExtension_traceback) {
 				tracebackRow--;
-            	*tracebackRow = newTracebackData + (*tracebackRow - gappedExtension_tracebackData);
-            }
+				*tracebackRow = newTracebackData + (*tracebackRow - gappedExtension_tracebackData);
+			}
 
-            // Data block is now double the size
-            gappedExtension_tracebackAlloc *= 2;
+			// Data block is now double the size
+			gappedExtension_tracebackAlloc *= 2;
 
-            free(gappedExtension_tracebackData);
-            gappedExtension_tracebackData = newTracebackData;
-        }
+			free(gappedExtension_tracebackData);
+			gappedExtension_tracebackData = newTracebackData;
+		}
 
-        // Initialize traceback pointer for this row
-        tracebackRow = gappedExtension_traceback + (queryPosition - PSSMatrix.matrix);
-        *tracebackRow = tracebackDataPtr - (subjectPosition - subject);
-        tracebackColumn = tracebackDataPtr;
-        tracebackDataPtr += (maxRowDropoff - subjectPosition + 1);
+		// Initialize traceback pointer for this row
+		tracebackRow = gappedExtension_traceback + (queryPosition - PSSMatrix.matrix);
+		*tracebackRow = tracebackDataPtr - (subjectPosition - subject);
+		tracebackColumn = tracebackDataPtr;
+		tracebackDataPtr += (maxRowDropoff - subjectPosition + 1);
 
-        // Unpack more of the subject if required
-        unpack_extendRegionEnd(maxRowDropoff - subject + seedSubjectOffset, unpackRegion);
+		// Unpack more of the subject if required
+		unpack_extendRegionEnd(maxRowDropoff - subject + seedSubjectOffset, unpackRegion);
 
-        // If the unpacked subject has moved in memory
-        if (subject != unpackRegion->unpackedSubject + seedSubjectOffset)
-        {
-        	// Update all pointers to point at the new subject
-            newSubject = unpackRegion->unpackedSubject + seedSubjectOffset;
-        	subjectPosition = (subjectPosition - subject) + newSubject;
+		// If the unpacked subject has moved in memory
+		if (subject != unpackRegion->unpackedSubject + seedSubjectOffset) {
+			// Update all pointers to point at the new subject
+			newSubject = unpackRegion->unpackedSubject + seedSubjectOffset;
+			subjectPosition = (subjectPosition - subject) + newSubject;
 			rowDropoff = (rowDropoff - subject) + newSubject;
 			columnDropoff = (columnDropoff - subject) + newSubject;
-            bestSubjectPosition = (bestSubjectPosition - subject) + newSubject;
-            subject = newSubject;
-        	subjectEnd = subject + subjectLength;
-        }
+			bestSubjectPosition = (bestSubjectPosition - subject) + newSubject;
+			subject = newSubject;
+			subjectEnd = subject + subjectLength;
+		}
 
-        // Reset rows
+		// Reset rows
 		rowOffset = (subjectPosition - subject);
-        matchRow = gappedExtension_matchRow + (rowOffset % gappedExtension_rowSizes);
-        insertQrow = gappedExtension_insertQrow + (rowOffset % gappedExtension_rowSizes);
-        insertSrow = gappedExtension_insertSrow + (rowOffset % gappedExtension_rowSizes);
+		matchRow = gappedExtension_matchRow + (rowOffset % gappedExtension_rowSizes);
+		insertQrow = gappedExtension_insertQrow + (rowOffset % gappedExtension_rowSizes);
+		insertSrow = gappedExtension_insertSrow + (rowOffset % gappedExtension_rowSizes);
 
 		// Using next column of the query matrix
 		matrixColumn = (*queryPosition);
@@ -1162,14 +1106,11 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 		previousOldInsertS = *insertSrow;
 
 		// Set Iy value
-		if (*insertQrow - parameters_extendGap > *matchRow - parameters_openGap)
-		{
+		if (*insertQrow - parameters_extendGap > *matchRow - parameters_openGap) {
 			*insertQrow = *insertQrow - parameters_extendGap;
 			// Iy is derived from Iy, M is derived from Iy
 			*tracebackColumn = 34;
-		}
-		else
-		{
+		} else {
 			*insertQrow = *matchRow - parameters_openGap;
 			// Iy is derived from M, M is derived from Iy
 			*tracebackColumn = 2;
@@ -1180,14 +1121,11 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 		*insertSrow = constants_gappedExtensionDummyValue;
 
 		// If score at current cell is below dropoff
-		if (dropoffThreshold > *insertQrow)
-		{
+		if (dropoffThreshold > *insertQrow) {
 			// Record dropoff position
 			columnDropoff = subjectPosition;
 			leftOfDropoff = 1;
-		}
-		else
-		{
+		} else {
 			// We are left of the column dropoff for this row
 			leftOfDropoff = 0;
 		}
@@ -1196,54 +1134,47 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 		previousMatch = match;
 		previousInsertS = *insertSrow;
 
-		subjectPosition++; matchRow++; insertQrow++; insertSrow++; tracebackColumn++;
+		subjectPosition++;
+		matchRow++;
+		insertQrow++;
+		insertSrow++;
+		tracebackColumn++;
 
-        // Check for scoring rows wrap-around
-        if (matchRow >= endMatchRow)
-        {
-            matchRow -= gappedExtension_rowSizes;
-            insertQrow -= gappedExtension_rowSizes;
-            insertSrow -= gappedExtension_rowSizes;
-        }
+		// Check for scoring rows wrap-around
+		if (matchRow >= endMatchRow) {
+			matchRow -= gappedExtension_rowSizes;
+			insertQrow -= gappedExtension_rowSizes;
+			insertSrow -= gappedExtension_rowSizes;
+		}
 
-        // -----CELLS LEFT OF ROW DROPOFF-----
-		while (subjectPosition <= rowDropoff)
-		{
+		// -----CELLS LEFT OF ROW DROPOFF-----
+		while (subjectPosition <= rowDropoff) {
 			// Remember old M value (for cell below this one)
 			oldMatch = *matchRow;
 
 			// Calculate new M value
-			if (previousOldMatch >= previousOldInsertQ)
-			{
-				if (previousOldMatch >= previousOldInsertS)
-				{
+			if (previousOldMatch >= previousOldInsertQ) {
+				if (previousOldMatch >= previousOldInsertS) {
 					match = matrixColumn[*subjectPosition] + previousOldMatch;
 					// M is derived from M
 					*tracebackColumn = 0;
-				}
-				else
-				{
+				} else {
 					match = matrixColumn[*subjectPosition] + previousOldInsertS;
 					// M is derived from Ix
 					*tracebackColumn = 1;
 				}
-			}
-			else
-			{
-				if (previousOldInsertQ >= previousOldInsertS)
-				{
+			} else {
+				if (previousOldInsertQ >= previousOldInsertS) {
 					match = matrixColumn[*subjectPosition] + previousOldInsertQ;
 					// M is derived from Iy
 					*tracebackColumn = 2;
-				}
-				else
-				{
+				} else {
 					match = matrixColumn[*subjectPosition] + previousOldInsertS;
 					// M is derived from Ix
 					*tracebackColumn = 1;
 				}
 			}
-			
+
 			*matchRow = match;
 
 			// Record some old values
@@ -1252,35 +1183,28 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 			previousOldInsertS = *insertSrow;
 
 			// Set new Iy value
-			if (oldMatch - parameters_openGap >= *insertQrow - parameters_extendGap)
-			{
+			if (oldMatch - parameters_openGap >= *insertQrow - parameters_extendGap) {
 				*insertQrow = oldMatch - parameters_openGap;
 				// Iy is derived from M
 				// No change to traceback
-			}
-			else
-			{
+			} else {
 				*insertQrow = *insertQrow - parameters_extendGap;
 				// Iy is derived from Iy
 				*tracebackColumn |= 32;
 			}
 			// Calculate new Ix
-			if (previousMatch - parameters_openGap >= previousInsertS - parameters_extendGap)
-			{
+			if (previousMatch - parameters_openGap >= previousInsertS - parameters_extendGap) {
 				*insertSrow = previousMatch - parameters_openGap;
 				// Ix is derived from M
 				// No change to traceback
-			}
-			else
-			{
+			} else {
 				*insertSrow = previousInsertS - parameters_extendGap;
 				// Ix is derived from Ix
 				*tracebackColumn |= 4;
 			}
 
 			// If this is the best-yet scoring cell
-			if (match > bestScore)
-			{
+			if (match > bestScore) {
 				// Update best start cell data
 				bestScore = match;
 				dropoffThreshold = bestScore - dropoff;
@@ -1289,17 +1213,13 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 			}
 
 			// If score at current cell (and cells to its left) are below dropoff
-			if (leftOfDropoff)
-			{
+			if (leftOfDropoff) {
 				if (dropoffThreshold > match &&
-					dropoffThreshold > *insertSrow &&
-					dropoffThreshold > *insertQrow)
-				{
+				        dropoffThreshold > *insertSrow &&
+				        dropoffThreshold > *insertQrow) {
 					// Record dropoff position
 					columnDropoff = subjectPosition;
-				}
-				else
-				{
+				} else {
 					// We are left of the column dropoff for this row
 					leftOfDropoff = 0;
 				}
@@ -1308,26 +1228,27 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 			// Record match and insertS for this about-to-be-previous cell
 			previousMatch = match;
 			previousInsertS = *insertSrow;
-            previousInsertQ = *insertQrow;
+			previousInsertQ = *insertQrow;
 
-			subjectPosition++; matchRow++; insertQrow++; insertSrow++; tracebackColumn++;
+			subjectPosition++;
+			matchRow++;
+			insertQrow++;
+			insertSrow++;
+			tracebackColumn++;
 
-            // Check for scoring rows wrap-around
-            if (matchRow >= endMatchRow)
-            {
-            	matchRow -= gappedExtension_rowSizes;
-            	insertQrow -= gappedExtension_rowSizes;
-            	insertSrow -= gappedExtension_rowSizes;
-            }
+			// Check for scoring rows wrap-around
+			if (matchRow >= endMatchRow) {
+				matchRow -= gappedExtension_rowSizes;
+				insertQrow -= gappedExtension_rowSizes;
+				insertSrow -= gappedExtension_rowSizes;
+			}
 		}
 
 		// -----CELLS RIGHT OF ROW DROPOFF -----
 		if (!(dropoffThreshold > previousMatch &&
-			dropoffThreshold > previousInsertS &&
-			dropoffThreshold > previousInsertQ))
-		{
-			while (subjectPosition < subjectEnd)
-			{
+		        dropoffThreshold > previousInsertS &&
+		        dropoffThreshold > previousInsertQ)) {
+			while (subjectPosition < subjectEnd) {
 				*insertSrow = previousInsertS - parameters_extendGap;
 				// Ix came from Ix
 				*tracebackColumn = 4;
@@ -1337,8 +1258,7 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 				*insertQrow = constants_gappedExtensionDummyValue;
 
 				// If score at current cell is below dropoff
-				if (dropoffThreshold > *insertSrow)
-				{
+				if (dropoffThreshold > *insertSrow) {
 					// And stop processing row
 					subjectPosition++;
 					break;
@@ -1347,15 +1267,18 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 				// Record insertS for this about-to-be-previous cell
 				previousInsertS = *insertSrow;
 
-				subjectPosition++; matchRow++; insertQrow++; insertSrow++; tracebackColumn++;
+				subjectPosition++;
+				matchRow++;
+				insertQrow++;
+				insertSrow++;
+				tracebackColumn++;
 
-                // Check for scoring rows wrap-around
-                if (matchRow >= endMatchRow)
-                {
-                    matchRow -= gappedExtension_rowSizes;
-                    insertQrow -= gappedExtension_rowSizes;
-                    insertSrow -= gappedExtension_rowSizes;
-                }
+				// Check for scoring rows wrap-around
+				if (matchRow >= endMatchRow) {
+					matchRow -= gappedExtension_rowSizes;
+					insertQrow -= gappedExtension_rowSizes;
+					insertSrow -= gappedExtension_rowSizes;
+				}
 
 				subjectDistance++;
 			}
@@ -1365,7 +1288,8 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 		rowDropoff = subjectPosition - 1;
 
 		queryDistance++;
-		queryPosition++; tracebackRow++;
+		queryPosition++;
+		tracebackRow++;
 
 //        if (dloc==88197331)
 //			gappedExtension_printAfterRow(gappedExtension_matchRow, subject, rowDropoff,
@@ -1383,15 +1307,15 @@ struct dpResults gappedExtension_dpAfterSeed(struct PSSMatrix PSSMatrix, int4 dr
 void gappedExtension_free()
 {
 	// Free memory used by traceback array
-    free(gappedExtension_traceback);
-    free(gappedExtension_tracebackData);
+	free(gappedExtension_traceback);
+	free(gappedExtension_tracebackData);
 
 //    printf("gappedExtension_tracebackAlloc=%d\n", gappedExtension_tracebackAlloc);
 
-    // Free memory used to store row scores
-    free(gappedExtension_matchRow);
-    free(gappedExtension_insertQrow);
-    free(gappedExtension_insertSrow);
+	// Free memory used to store row scores
+	free(gappedExtension_matchRow);
+	free(gappedExtension_insertQrow);
+	free(gappedExtension_insertSrow);
 }
 
 // Debugging routine
@@ -1400,33 +1324,33 @@ void gappedExtension_printBeforeRow(int4* row, unsigned char* subject, unsigned 
 {
 	// TODO: Adjust to work with wrap-around
 	unsigned char* subjectPosition = subject;
-    int4 *oldRow, *best;
+	int4 *oldRow, *best;
 
-	while (subjectPosition < rowDropoff)
-	{
+	while (subjectPosition < rowDropoff) {
 		printf("     ");
 		subjectPosition++;
 		row++;
 	}
 
-    best = oldRow = row;
+	best = oldRow = row;
 
-	while (subjectPosition < columnDropoff)
-	{
-    	if (*row > *best)
-        	best = row;
+	while (subjectPosition < columnDropoff) {
+		if (*row > *best) {
+			best = row;
+		}
 		row++;
 		subjectPosition++;
 	}
 
-    row = oldRow; subjectPosition = rowDropoff;
+	row = oldRow;
+	subjectPosition = rowDropoff;
 
-    while (subjectPosition < columnDropoff)
-	{
-    	if (row == best)
+	while (subjectPosition < columnDropoff) {
+		if (row == best) {
 			printf("%4d*", *row);
-        else
+		} else {
 			printf("%4d ", *row);
+		}
 		row++;
 		subjectPosition++;
 	}
@@ -1440,33 +1364,33 @@ void gappedExtension_printAfterRow(int4* row, unsigned char* subject, unsigned c
 {
 	// TODO: Adjust to work with wrap-around
 	unsigned char* subjectPosition = subject;
-    int4 *oldRow, *best;
+	int4 *oldRow, *best;
 
-	while (subjectPosition < columnDropoff)
-	{
+	while (subjectPosition < columnDropoff) {
 		printf("     ");
 		subjectPosition++;
 		row++;
 	}
 
-    best = oldRow = row;
+	best = oldRow = row;
 
-	while (subjectPosition < rowDropoff)
-	{
-    	if (*row > *best)
-        	best = row;
+	while (subjectPosition < rowDropoff) {
+		if (*row > *best) {
+			best = row;
+		}
 		row++;
 		subjectPosition++;
 	}
 
-    row = oldRow; subjectPosition = columnDropoff;
+	row = oldRow;
+	subjectPosition = columnDropoff;
 
-    while (subjectPosition < rowDropoff)
-	{
-    	if (row == best)
+	while (subjectPosition < rowDropoff) {
+		if (row == best) {
 			printf("%4d*", *row);
-        else
+		} else {
 			printf("%4d ", *row);
+		}
 		row++;
 		subjectPosition++;
 	}
