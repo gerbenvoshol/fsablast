@@ -1,7 +1,7 @@
 
 For the latest information about FSA-BLAST visit https://github.com/gerbenvoshol/fsablast
 
-##About FSA-BLAST
+## About FSA-BLAST
 
 FSA-BLAST is a new version of the popular BLAST (Basic Local Alignment Search Tool) bioinformatics tool, used to search genomic databases containing either protein or nucleotide sequences. FSA stands for Faster Search Algorithm; FSA-BLAST is twice as fast as NCBI-BLAST for nucleotide searches and 30% faster for protein searches with no loss in accuracy. These speed gains are due to a range of improvements to the BLAST algorithm described in detail in scientific publications. The software is freely available for download and open source under the BSD license agreement.
 
@@ -9,15 +9,15 @@ The FSA-BLAST software is designed to be as similar as possible in usage to the 
 
 FSA-BLAST is currently under development. Some features are unavailable, including the ability to perform translated searches (BLASTX, TBLASTN, TBLASTX). The following features are currently available:
 
--Protein vs protein (BLASTP) and nucleotide vs. nucleotide searches (BLASTN)
--Query filtering using DUST and SEG low complexity filters
--Reverse complement nucleotide searches
--Karlin-Altschul alignment statistics
--Control over a range of parameters including; word length, hit threshold, multiple hit window size, ungapped and gapped dropoff, open and extend gap penalties, scoring matrix, match and mismatch penalties, number of reported/displayed alignments, and gapped alignment trigger score.
+- Protein vs protein (BLASTP) and nucleotide vs. nucleotide searches (BLASTN)
+- Query filtering using DUST and SEG low complexity filters
+- Reverse complement nucleotide searches
+- Karlin-Altschul alignment statistics
+- Control over a range of parameters including; word length, hit threshold, multiple hit window size, ungapped and gapped dropoff, open and extend gap penalties, scoring matrix, match and mismatch penalties, number of reported/displayed alignments, and gapped alignment trigger score.
 
 FSA-BLAST is written and maintained by Michael Cameron. Improvements to the BLAST algorithm are the result of research conducted by Michael Cameron, Hugh E. Williams, Yaniv Bernstein and Adam Cannane at RMIT University, Australia.
 
-##Download and installing
+## Download and installing
 
 FSA-BLAST is available for download as source code. All source code is freely available under the BSD license agreement. You can view a copy of the license agreement here.
 The software has been tested on a handful of Unix systems. If you have any problems compiling the software under Unix please let us know.
@@ -59,7 +59,7 @@ Data=/home/user/blast/data
 '''
 where the directory specified contains the scoring matrix files. In absence of a .ncbirc file, FSA-BLAST will attempt to locate the files in the /data subdirectory of the current working directory.
 
-##Usage instructions 
+## Usage instructions 
 
 Before searching a collection, you will first need to format it using the formatdb tool provided with FSA-BLAST. Note that this tool is different from the formatdb application that comes with NCBI-BLAST which uses a different format. The tool will generate three files with extensions .data .sequences and .descriptions in the same directory as the collection.
 
@@ -281,7 +281,7 @@ Also provided is a tool for converting a formatted collection back into FASTA fo
 
 will output the database to stdout in FASTA format.
 
-##Papers
+## Papers
 
 The following papers describe improvements to the BLAST algorithm used by FSA-BLAST to increase search speed without any loss in accuracy:
 
@@ -297,7 +297,7 @@ Altschul, S.F., Madden, T.L., Schäffer, A.A., Zhang, J., Zhang, Z., Miller, W. &
 
 Altschul, S.F., Gish, W., Miller, W., Myers, E.W. & Lipman, D.J. (1990) "Basic local alignment search tool." J. Mol. Biol. 215:403-410.  Medline
 
-##Feedback & reporting bugs
+## Feedback & reporting bugs
 
 If you have any feedback regarding FSA-BLAST including bug reports, questions or feature requests email them to Gerben Voshol using gpvoshol@gmail.com
 
