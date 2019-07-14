@@ -289,7 +289,9 @@ BLAST searches against the clustered database will then be faster. The amount of
 
 Also provided is a tool for converting a formatted collection back into FASTA format. The command:
 
+'''
  ./readdb ~/data/pdb
+'''
 
 will output the database to stdout in FASTA format.
 
@@ -297,17 +299,21 @@ will output the database to stdout in FASTA format.
 
 The following papers describe improvements to the BLAST algorithm used by FSA-BLAST to increase search speed without any loss in accuracy:
 
+'''
 M. Cameron, H.E. Williams, and A. Cannane, ``Improved Gapped Alignment in BLAST'', IEEE/ACM Transactions on Computational Biology and Bioinformatics, 1(3), 116-129, 2004. Postscript PDF Abstract and source code
 
 M. Cameron, H.E. Williams, and A. Cannane, ``A Deterministic Finite Automaton for Faster Protein Hit Detection in BLAST'', manuscript in preparation.
 
 M. Cameron and H.E. Williams, ``Comparing compressed sequences for faster nucleotide BLAST searches'', manuscript in preparation.
+'''
 
 The original papers describing the BLAST algorithm are:
 
-Altschul, S.F., Madden, T.L., Sch‰ffer, A.A., Zhang, J., Zhang, Z., Miller, W. & Lipman, D.J. (1997) "Gapped BLAST and PSI-BLAST: a new generation of protein database search programs." Nucleic Acids Res. 25:3389-3402. Medline
+'''
+Altschul, S.F., Madden, T.L., Sch√§ffer, A.A., Zhang, J., Zhang, Z., Miller, W. & Lipman, D.J. (1997) "Gapped BLAST and PSI-BLAST: a new generation of protein database search programs." Nucleic Acids Res. 25:3389-3402. Medline
 
 Altschul, S.F., Gish, W., Miller, W., Myers, E.W. & Lipman, D.J. (1990) "Basic local alignment search tool." J. Mol. Biol. 215:403-410.  Medline
+'''
 
 ## Feedback & reporting bugs
 
