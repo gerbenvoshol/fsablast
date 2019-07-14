@@ -1,9 +1,9 @@
 
-For the latest information about FSA-BLAST visit http://www.fsa-blast.org/
+For the latest information about FSA-BLAST visit https://github.com/gerbenvoshol/fsablast
 
- About FSA-BLAST
+###About FSA-BLAST
 
-FSA-BLAST is a new version of the popular BLAST (Basic Local Alignment Search Tool) bioinformatics tool, used to search genomic databases containing either protein or nucleotide sequences. FSA stands for Faster Search Algorithm; FSA-BLAST is twice as fast as NCBI-BLAST for nucleotide searches and 30% faster for protein searches with no loss in accuracy. These speed gains are due to a range of improvements to the BLAST algorithm described in detail in recent scientific publications. The software is freely available for download and open source under the BSD license agreement.
+FSA-BLAST is a new version of the popular BLAST (Basic Local Alignment Search Tool) bioinformatics tool, used to search genomic databases containing either protein or nucleotide sequences. FSA stands for Faster Search Algorithm; FSA-BLAST is twice as fast as NCBI-BLAST for nucleotide searches and 30% faster for protein searches with no loss in accuracy. These speed gains are due to a range of improvements to the BLAST algorithm described in detail in scientific publications. The software is freely available for download and open source under the BSD license agreement.
 
 The FSA-BLAST software is designed to be as similar as possible in usage to the NCBI-BLAST application. Results are output in an almost identical format. Most command line options are the same, and parameters such as word length, hit threshold, alignment dropoff and gapped alignment trigger are comparable to NCBI-BLAST. FSA-BLAST uses the exact same statistical analysis to evaluate E-values and normalized scores for alignments.
 
@@ -17,24 +17,14 @@ FSA-BLAST is currently under development. Some features are unavailable, includi
 
 FSA-BLAST is written and maintained by Michael Cameron. Improvements to the BLAST algorithm are the result of research conducted by Michael Cameron, Hugh E. Williams, Yaniv Bernstein and Adam Cannane at RMIT University, Australia.
 
- Download and installing
+###Download and installing
 
-FSA-BLAST is available for download as source code or precompiled binaries for x86 Linux systems:
-
-fsablast101-source.tar.gz
-    Source code, unix tar/gzip format
-fsablast101-x86binaries.tar.gz
-    Intel x86 Linux pre-compiled binaries, unix tar/gzip format
-fsablast101-G5binaries.tar.gz
-    PowerMac G5 pre-compiled binaries, unix tar/gzip format
-
-All source code is freely available under the BSD license agreement. You can view a copy of the license agreement here.
+FSA-BLAST is available for download as source code. All source code is freely available under the BSD license agreement. You can view a copy of the license agreement here.
 The software has been tested on a handful of Unix systems. If you have any problems compiling the software under Unix please let us know.
 
-Decompress the above files using the following commands:
+Decompress the source file using the following commands:
 
-gzip -d fsablast101-source.tar.gz 
-tar -xf fsablast101-source.tar 
+unzip -x fsablast-master.zip  
 
 To compile the software type:
 
@@ -42,25 +32,35 @@ make
 
 Which will generate the following binaries:
 
-formatdb
+fsaformatdb
+
 Converts a FASTA format database into files readable by FSA-BLAST
-cluster
+
+fsacluster
+
 Clusters a protein collection for faster BLAST searches (around 22% faster for GenBank NR database)
-blast
+
+fsablast
+
 Performs BLASTP and BLASTN searches
-readdb
+
+fsareaddb
+
 Outputs the contents of a collection that has been processed using formatdb in FASTA format
-ssearch
+
+fsassearch
+
 Performs Smith-Waterman search against a formatted collection using BLAST output, scoring and statistics
 
 BLAST also needs to know the location of scoring matrix files, such as BLOSUM62. BLAST consults the file .ncbirc in the user's home directory to find the location of the scoring files. The .ncbirc file can be created using a text editor and should be formatted as follows:
 
 [NCBI]
+
 Data=/home/user/blast/data
 
 where the directory specified contains the scoring matrix files. In absence of a .ncbirc file, FSA-BLAST will attempt to locate the files in the /data subdirectory of the current working directory.
 
- Usage instructions 
+###Usage instructions 
 
 Before searching a collection, you will first need to format it using the formatdb tool provided with FSA-BLAST. Note that this tool is different from the formatdb application that comes with NCBI-BLAST which uses a different format. The tool will generate three files with extensions .data .sequences and .descriptions in the same directory as the collection.
 
@@ -98,7 +98,7 @@ $ ./blast -i query -d ~/data/pdb
 
 Which will produce output looking like:
 
-CW-BLAST
+FSA-BLAST
 
 Query= gi|38083732|ref|XP_357594.1| similar to KIAA0960 protein [Mus
 musculus]
@@ -192,7 +192,7 @@ To view a complete list of BLAST parameters simple execute:
 
 $ ./blast
 
-CW-BLAST
+FSA-BLAST
 
   -d  Database
     default =
@@ -280,7 +280,7 @@ Also provided is a tool for converting a formatted collection back into FASTA fo
 
 will output the database to stdout in FASTA format.
 
- Papers
+###Papers
 
 The following papers describe improvements to the BLAST algorithm used by FSA-BLAST to increase search speed without any loss in accuracy:
 
@@ -296,7 +296,7 @@ Altschul, S.F., Madden, T.L., Schäffer, A.A., Zhang, J., Zhang, Z., Miller, W. &
 
 Altschul, S.F., Gish, W., Miller, W., Myers, E.W. & Lipman, D.J. (1990) "Basic local alignment search tool." J. Mol. Biol. 215:403-410.  Medline
 
- Feedback & reporting bugs
+###Feedback & reporting bugs
 
 If you have any feedback regarding FSA-BLAST including bug reports, questions or feature requests email them to Gerben Voshol using gpvoshol@gmail.com
 
