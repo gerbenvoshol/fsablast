@@ -298,7 +298,7 @@ Altschul, S.F., Gish, W., Miller, W., Myers, E.W. & Lipman, D.J. (1990) "Basic l
 
  Feedback & reporting bugs
 
-If you have any feedback regarding FSA-BLAST including bug reports, questions or feature requests email them to mcam at cs.rmit.edu.au
+If you have any feedback regarding FSA-BLAST including bug reports, questions or feature requests email them to Gerben Voshol using gpvoshol@gmail.com
 
 When reporting a problem compiling or running FSA-BLAST please include as much information about the problem as possible, including:
 
