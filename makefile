@@ -17,7 +17,7 @@ ifeq ($(PLATFORM), Linux)
     # Use for production build:
     CFLAGS=-I$(INC) -O3 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
     # Use for debugging:
-    #CFLAGS=-I$(INC) -O3 -fsanitize=address -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+    #CFLAGS=-I$(INC) -O3 -D VERBOSE=1 -fsanitize=address -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
     LDFLAGS=-lm -lz
 endif
 
