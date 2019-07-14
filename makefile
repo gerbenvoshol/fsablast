@@ -15,7 +15,7 @@ LDFLAGS=-lm
 ifeq ($(PLATFORM), Linux)
     CC=gcc
     # Use for production build:
-    CFLAGS=-I$(INC) -O3 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+    CFLAGS=-I$(INC) -O3 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D GZ_SUPPORT
     # Use for debugging:
     #CFLAGS=-I$(INC) -O3 -D VERBOSE=1 -fsanitize=address -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
     LDFLAGS=-lm -lz
@@ -25,7 +25,7 @@ endif
 ifeq ($(PLATFORM), Darwin)
     CC=/usr/local/bin/gcc-8
     #CC=gcc
-    CFLAGS=-I$(INC) -O3 -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+    CFLAGS=-I$(INC) -O3 -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D GZ_SUPPORT
     #CFLAGS=-I$(INC) -pipe -O2 -no-cpp-precomp -Wno-long-double
     LDFLAGS=-lm -lz
 endif

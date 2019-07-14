@@ -81,13 +81,13 @@ void seqfclose(SEQFILE *sfp);
 
 int seqfread(SEQFILE *sfp, int flag);
 
-char *seqfgetseq(SEQFILE *sfp, size_t *length_out, int newbuffer);
-char *seqfgetrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer);
+char *seqfgetseq(SEQFILE *sfp, int *length_out, int newbuffer);
+char *seqfgetrawseq(SEQFILE *sfp, int *length_out, int newbuffer);
 char *seqfgetentry(SEQFILE *sfp, int *length_out, int newbuffer);
 SEQINFO *seqfgetinfo(SEQFILE *sfp, int newbuffer);
 
-char *seqfsequence(SEQFILE *sfp, size_t *length_out, int newbuffer);
-char *seqfrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer);
+char *seqfsequence(SEQFILE *sfp, int *length_out, int newbuffer);
+char *seqfrawseq(SEQFILE *sfp, int *length_out, int newbuffer);
 char *seqfentry(SEQFILE *sfp, int *length_out, int newbuffer);
 SEQINFO *seqfinfo(SEQFILE *sfp, int newbuffer);
 SEQINFO *seqfallinfo(SEQFILE *sfp, int newbuffer);
@@ -535,7 +535,7 @@ typedef struct {
   int randaccessflag, *byteoffsets, currentoffset, num_offsets;
 
   char *fp_buffer;
-  int fp_bufsize, fp_bytepos;
+  size_t fp_bufsize, fp_bytepos;
   char *fp_current, *fp_top;
   char *fp_entrystart, *fp_seqstart, *fp_entryend;
   char savech, *savech_loc;
@@ -737,10 +737,10 @@ static int pdb_getinfo(INTSEQFILE *, char *, int, int);
 #define FORMAT_MSF         44
 #define FORMAT_BOUT        45
 /* Todo: Add new formats */ 
-#define FORMAT_PDB         46
-#define FORMAT_FASTQ       47
-#define FORMAT_SAM         48
-#define FORMAT_BAM         49
+#define FORMAT_PDB         50
+#define FORMAT_FASTQ       49
+// #define FORMAT_SAM         48
+// #define FORMAT_BAM         49
 #define FORMAT_NEXUS       50
 
 typedef struct {
@@ -1612,7 +1612,7 @@ int seqfread(SEQFILE *sfp, int flag)
  *
  * Returns:  the next entry's sequence.
  */
-char *seqfgetseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
+char *seqfgetseq(SEQFILE *sfp, int *length_out, int newbuffer)
 {
   INTSEQFILE *isfp = (INTSEQFILE *) sfp;
 
@@ -1653,7 +1653,7 @@ char *seqfgetseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
  *
  * Returns:  the next entry's raw sequence.
  */
-char *seqfgetrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
+char *seqfgetrawseq(SEQFILE *sfp, int *length_out, int newbuffer)
 {
   INTSEQFILE *isfp = (INTSEQFILE *) sfp;
 
@@ -1770,7 +1770,7 @@ SEQINFO *seqfgetinfo(SEQFILE *sfp, int newbuffer)
  *
  * Returns:  the current entry's sequence.
  */
-char *intseqf_seq(SEQFILE *sfp, size_t *length_out, int newbuffer,
+char *intseqf_seq(SEQFILE *sfp, int *length_out, int newbuffer,
                   int rawseqflag, char *fnname)
 {
   int status;
@@ -1850,10 +1850,10 @@ char *intseqf_seq(SEQFILE *sfp, size_t *length_out, int newbuffer,
   }
 }
 
-char *seqfsequence(SEQFILE *sfp, size_t *length_out, int newbuffer)
+char *seqfsequence(SEQFILE *sfp, int *length_out, int newbuffer)
 {  return intseqf_seq(sfp, length_out, newbuffer,
                       GETSEQ_SEQUENCE, "seqfsequence");  }
-char *seqfrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
+char *seqfrawseq(SEQFILE *sfp, int *length_out, int newbuffer)
 {  return intseqf_seq(sfp, length_out, newbuffer,
                       GETSEQ_RAWSEQ, "seqfrawseq");  }
 
@@ -2717,8 +2717,7 @@ int seqfwrite(SEQFILE *sfp, char *seq, int seqlen, SEQINFO *info)
  */
 int seqfconvert(SEQFILE *sfpin, SEQFILE *sfpout)
 {
-  size_t seqlen;
-  int status;
+  int seqlen, status;
   char *seq;
   SEQINFO *info;
   INTSEQFILE *isfpin, *isfpout;
@@ -4292,7 +4291,7 @@ static int determine_format(INTSEQFILE *isfp)
   text = s;
   for (i=0; i < file_table_size; i++) {
     det = file_table[i].determinant;
-    
+
     /* continue with next file if we do not have determinant for that file format */
     if (det == NULL) {
       continue;
@@ -4317,6 +4316,8 @@ static int determine_format(INTSEQFILE *isfp)
        * because it depends on the structure of the first line.
        */
       if (!*det || *det == '|') {
+        //printf("%i\n", file_table[i].format);
+        //printf("---%s---\n", line);
         isfp->format = file_table[i].format;
         isfp->fp_current = line;
         return STATUS_OK;
@@ -5785,7 +5786,7 @@ static int basic_read(INTSEQFILE *isfp, int flag)
        * @EAS54_6_R1_2_1_540_792   <- This is the start of the next entry
        */
       case FORMAT_FASTQ:
-        while (status == STATUS_OK) {
+        while (status == STATUS_OK && line[0] != keych && (fastq_seqlength == fastq_quallength)) {
           /* if we find the description line before the quality data, we know we read all the sequence data and we determine the
            * amount of base pairs read.
            */
@@ -5810,9 +5811,6 @@ static int basic_read(INTSEQFILE *isfp, int flag)
           /* if we find an @ character, it could be the start of the next entry, but only if the amount of sequence data and
            * quality data matches (e.a. ever base pair has a quality value).
            */
-          if (line[0] == keych && (fastq_seqlength == fastq_quallength)) {
-            break;
-          }
         }
         break;
 
