@@ -54,10 +54,10 @@ Performs Smith-Waterman search against a formatted collection using BLAST output
 
 BLAST also needs to know the location of scoring matrix files, such as BLOSUM62. BLAST consults the file .ncbirc in the user's home directory to find the location of the scoring files. The .ncbirc file can be created using a text editor and should be formatted as follows:
 
-'''
+' 
         [NCBI]
         Data=/home/user/blast/data
-'''
+' 
 
 where the directory specified contains the scoring matrix files. In absence of a .ncbirc file, FSA-BLAST will attempt to locate the files in the /data subdirectory of the current working directory.
 
@@ -67,15 +67,15 @@ Before searching a collection, you will first need to format it using the format
 
 The following illustrates how to format a collection:
 
-'''
+' 
         $ ls -al ~/data
         total 79256
         drwxr-xr-x    2 mcam     mcam         4096 Sep  1 16:33 ./
         drwxr-xr-x   24 mcam     mcam         4096 Sep  1 16:32 ../
         -rw-r--r--    1 mcam     mcam     81061294 Sep  1 16:33 pdb
-'''
+' 
 
-'''
+' 
         $ ./formatdb ~/data/pdb
         PROTEIN database detected.
         Formatting database..............................done.
@@ -84,9 +84,9 @@ The following illustrates how to format a collection:
         0 wildcards encoded.
         1 volume(s) created.
         Longest/shortest sequence was 15281/6 letters
-'''
+' 
 
-'''
+' 
 $ ls -al ~/data
         total 158828
         drwxr-xr-x    2 mcam     mcam         4096 Sep  1 16:36 ./
@@ -95,13 +95,13 @@ $ ls -al ~/data
         -rw-r--r--    1 mcam     mcam      1121748 Sep  1 16:36 pdb.data
         -rw-r--r--    1 mcam     mcam     28832910 Sep  1 16:36 pdb.descriptions
         -rw-r--r--    1 mcam     mcam     51428734 Sep  1 16:36 pdb.sequences
-'''
+' 
 
 NOTE: To format a collection for use with FSA-BLAST you will need the database to be in FASTA format. To convert a database from NCBI-BLAST format (with files extensions such as nhr, nin, nsq, phr, pin, and psq) back to FASTA format you will need to use the fastacmd tool that comes with the NCBI toolkit (in the /build directory).
 
 Once the collection has been formatted you can search it with blast using a command such as follows:
 
-'''
+' 
         $ ./blast -i query -d ~/data/pdb
 
         Which will produce output looking like:
@@ -195,11 +195,11 @@ Once the collection has been formatted you can search it with blast using a comm
         S1: 40
         S2: 58
         F2: 40
-'''
+' 
 
 To view a complete list of BLAST parameters simple execute:
 
-'''
+' 
         $ ./fsablast
 
         FSA-BLAST
@@ -249,11 +249,11 @@ To view a complete list of BLAST parameters simple execute:
             default = 3
 
         ERROR: Query File not specified
-'''
+' 
 
 To perform faster protein BLAST searches, you can cluster the collection using the cluster command:
 
-'''
+' 
          ./cluster ~/data/pdb
 
         Number of sequences = 1822
@@ -283,15 +283,15 @@ To perform faster protein BLAST searches, you can cluster the collection using t
         Total bytes saved=152948
         Writing clusters to disk...done.
         Writing remaining sequences to disk...done.
-'''
+' 
 
 BLAST searches against the clustered database will then be faster. The amount of redundancy in the original collection will affect the speed increase obtained by clustering, although our experiments have shown a 22% speed increase when searching the GenBank NR database.
 
 Also provided is a tool for converting a formatted collection back into FASTA format. The command:
 
-'''
+' 
         ./readdb ~/data/pdb
-'''
+' 
 
 will output the database to stdout in FASTA format.
 
@@ -299,21 +299,21 @@ will output the database to stdout in FASTA format.
 
 The following papers describe improvements to the BLAST algorithm used by FSA-BLAST to increase search speed without any loss in accuracy:
 
-'''
+' 
         M. Cameron, H.E. Williams, and A. Cannane, ``Improved Gapped Alignment in BLAST'', IEEE/ACM Transactions on Computational Biology and Bioinformatics, 1(3), 116-129, 2004. Postscript PDF Abstract and source code
 
         M. Cameron, H.E. Williams, and A. Cannane, ``A Deterministic Finite Automaton for Faster Protein Hit Detection in BLAST'', manuscript in preparation.
 
         M. Cameron and H.E. Williams, ``Comparing compressed sequences for faster nucleotide BLAST searches'', manuscript in preparation.
-'''
+' 
 
 The original papers describing the BLAST algorithm are:
 
-'''
+' 
         Altschul, S.F., Madden, T.L., Schäffer, A.A., Zhang, J., Zhang, Z., Miller, W. & Lipman, D.J. (1997) "Gapped BLAST and PSI-BLAST: a new generation of protein database search programs." Nucleic Acids Res. 25:3389-3402. Medline
 
         Altschul, S.F., Gish, W., Miller, W., Myers, E.W. & Lipman, D.J. (1990) "Basic local alignment search tool." J. Mol. Biol. 215:403-410.  Medline
-'''
+' 
 
 ## Feedback & reporting bugs
 
