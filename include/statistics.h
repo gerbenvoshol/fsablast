@@ -1,13 +1,12 @@
 #ifndef _statistics_
 #define _statistics_
 
-struct statisticalParameters
-{
+struct statisticalParameters {
 	char* matrix;
-    int2 startGap;
-    int2 extendGap;
-    float lambda, K, H;
-    float alpha, beta;
+	int2 startGap;
+	int2 extendGap;
+	float lambda, K, H;
+	float alpha, beta;
 };
 
 extern float statistics_log2;

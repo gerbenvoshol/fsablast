@@ -104,7 +104,7 @@ int4 main(int argc, char* argv[])
 
 	printf("done.\n");
 	printf("%d sequences processed.\n", writedb_sequenceCount);
-	printf("%lu letters processed.\n", writedb_numberOfLetters);
+	printf("%llu letters processed.\n", writedb_numberOfLetters);
 	printf("%d wildcards encoded.\n", totalWilds);
 	printf("%d volume(s) created.\n", writedb_volume + 1);
 	printf("Longest/shortest sequence was %d/%d letters\n",

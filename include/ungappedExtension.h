@@ -19,21 +19,21 @@ void ungappedExtension_initialize();
 // Perform an ungapped extension between point4s queryStart,subjectStart and queryEnd,subjectEnd
 // and extend in each direction until score drops below best score yet minus a dropoff parameter
 struct ungappedExtension* ungappedExtension_extend(int2** queryHit, unsigned char* subjectHit,
-                        unsigned char* lastHit, struct PSSMatrix PSSMatrix, unsigned char* subject);
+        unsigned char* lastHit, struct PSSMatrix PSSMatrix, unsigned char* subject);
 
 // Perform an ungapped extension when the seed is only a single hit on the diagonal, rather
 // than a pair of hits.
 struct ungappedExtension* ungappedExtension_oneHitExtend(int2** queryHit,
-		unsigned char* subjectHit, struct PSSMatrix PSSMatrix, unsigned char* subject);
+        unsigned char* subjectHit, struct PSSMatrix PSSMatrix, unsigned char* subject);
 
 // Perform one-hit seeded ungapped extension for nucleotide, 1 packed-byte at a time
 struct ungappedExtension* ungappedExtension_nucleotideExtend(int4 queryHitOffset,
-	int4 subjectHitOffset, struct PSSMatrix PSSMatrix, unsigned char* subject,
-    uint4 subjectLength);
+        int4 subjectHitOffset, struct PSSMatrix PSSMatrix, unsigned char* subject,
+        uint4 subjectLength);
 
 // Find seed point4 for an ungapped extension
-extern inline void ungappedExtension_findSeed(struct ungappedExtension* ungappedExtension,
-		                                      struct PSSMatrix PSSMatrix, unsigned char* subject);
+extern void ungappedExtension_findSeed(struct ungappedExtension* ungappedExtension,
+                                       struct PSSMatrix PSSMatrix, unsigned char* subject);
 
 void ungappedExtension_print(struct ungappedExtension* extension);
 

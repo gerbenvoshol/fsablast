@@ -1,10 +1,9 @@
 #ifndef _wordLookupDFA_
 #define _wordLookupDFA_
 
-struct group
-{
+struct group {
 	unsigned char* nextWords;
-    struct group* nextGroups;
+	struct group* nextGroups;
 };
 
 extern uint2* wordLookupDFA_additionalQueryPositions;

@@ -1,8 +1,7 @@
 #ifndef _readFile_
 #define _readFile_
 
-struct readFile
-{
+struct readFile {
 	int4 fileSize;
 	int4 fileDescriptor;
 	void* address;

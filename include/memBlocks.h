@@ -1,18 +1,17 @@
 #ifndef _memBlocks_
 #define _memBlocks_
 
-struct memBlocks
-{
-    int4 blockSizes;	// Maximum size of each block
+struct memBlocks {
+	int4 blockSizes;	// Maximum size of each block
 	size_t entrySize;	// Size of each entry
-    int4 numBlocks;		// Number of blocks
-    int4* numEntries;	// Number of entries for each of the blocks
-    int4 maxNumBlocks;	// Maximum number of blocks before realloc
-    void** blocks;		// The blocks
-    void* lastBlock;	// The last block
-    int4 currentEntry;	// The current entry number
-    int4 currentBlock;	// The current block number
-    int4 numTotalEntries;  // Total number of entries
+	int4 numBlocks;		// Number of blocks
+	int4* numEntries;	// Number of entries for each of the blocks
+	int4 maxNumBlocks;	// Maximum number of blocks before realloc
+	void** blocks;		// The blocks
+	void* lastBlock;	// The last block
+	int4 currentEntry;	// The current entry number
+	int4 currentBlock;	// The current block number
+	int4 numTotalEntries;  // Total number of entries
 };
 
 // Create a new memory block
@@ -31,13 +30,13 @@ void memBlocks_returnUnused(struct memBlocks* memBlocks, int4 numUnused);
 void* memBlocks_getLastEntry(struct memBlocks* memBlocks);
 
 // Reset the current position to the beginning
-extern inline void memBlocks_resetCurrent(struct memBlocks* memBlocks);
+extern void memBlocks_resetCurrent(struct memBlocks* memBlocks);
 
 // Get the current entry and advance to the next
-extern inline void* memBlocks_getCurrent(struct memBlocks* memBlocks);
+extern void* memBlocks_getCurrent(struct memBlocks* memBlocks);
 
 // Free memory used by the memBlocks then the memBlocks itself
-extern inline void memBlocks_free(struct memBlocks* memBlocks);
+extern void memBlocks_free(struct memBlocks* memBlocks);
 
 #endif
 

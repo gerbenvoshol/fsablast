@@ -7,40 +7,36 @@
 // BLAST datatypes
 
 // This structure contains values for a scoring matrix such as BLOSUM62
-struct scoreMatrix
-{
+struct scoreMatrix {
 	int2** matrix;
 	int4 highestValue;
 	int4 lowestValue;
-    float averageMatchScore;
+	float averageMatchScore;
 };
 
 // This structure contains a PSSM (Position Specific Scoring Matrix) which has
 // a column for each amino acid in original query sequence (of length "length")
 // and 25 rows.
-struct PSSMatrix
-{
-    int4 length;
-    int4 strandLength;
+struct PSSMatrix {
+	int4 length;
+	int4 strandLength;
 	int4 highestValue;
 	int4 lowestValue;
 	int2** matrix;
 	unsigned char* queryCodes;
-    unsigned char* bestMatchCodes;
-    unsigned char* bytePackedCodes;
+	unsigned char* bestMatchCodes;
+	unsigned char* bytePackedCodes;
 	unsigned char* xorCodes;
 };
 
 // A query/subject coordinate pair
-struct coordinate
-{
-    int4 queryOffset;
+struct coordinate {
+	int4 queryOffset;
 	int4 subjectOffset;
 };
 
 // Information about an ungapped extension
-struct ungappedExtension
-{
+struct ungappedExtension {
 	struct coordinate start;
 	struct coordinate end;
 	struct coordinate seed;
@@ -50,26 +46,23 @@ struct ungappedExtension
 };
 
 // A region either copied or unpacked by blast
-struct unpackRegion
-{
+struct unpackRegion {
 	int4 startOffset;
-    int4 endOffset;
+	int4 endOffset;
 	unsigned char* unpackedSubject;
-    unsigned char* subject;
-    int4 subjectLength;
+	unsigned char* subject;
+	int4 subjectLength;
 };
 
 // Result of dynamic programming
-struct dpResults
-{
+struct dpResults {
 	struct coordinate best;
 	uint4 bestScore;
 	unsigned char** traceback;
 };
 
 // An alignment trace resulting from dynamic programming
-struct trace
-{
+struct trace {
 	uint4 length;
 	uint4 queryStart;
 	uint4 subjectStart;
@@ -77,8 +70,7 @@ struct trace
 };
 
 // A gapped alignment
-struct gappedExtension
-{
+struct gappedExtension {
 	struct trace trace;
 	int4 nominalScore;
 	int4 queryEnd;
@@ -89,28 +81,26 @@ struct gappedExtension
 };
 
 // Information about the alignment between the query and a subject
-struct alignment
-{
+struct alignment {
 	int4 descriptionLocation;
-    int4 descriptionLength;
+	int4 descriptionLength;
 	unsigned char* subject;
 	int4 subjectLength;
 	struct ungappedExtension* ungappedExtensions;
 	struct gappedExtension* gappedExtensions;
-    unsigned char* edits;
-    int4 encodedLength;
+	unsigned char* edits;
+	int4 encodedLength;
 	char joinChecked;
-    char inMemorySubject;
-    struct unpackRegion* unpackRegions;
-    uint4 numUnpackRegions;
-    uint4 cluster;
+	char inMemorySubject;
+	struct unpackRegion* unpackRegions;
+	uint4 numUnpackRegions;
+	uint4 cluster;
 };
 
 // A final alignment above cutoff
-struct finalAlignment
-{
+struct finalAlignment {
 	int4 highestNominalScore;
-    char* description;
+	char* description;
 	struct alignment* alignment;
 };
 

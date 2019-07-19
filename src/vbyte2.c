@@ -16,7 +16,7 @@
 #include <limits.h>
 
 /* XXX: names for bitmasks: form bits.h */
-unsigned int vbyte_read(FILE* fp, unsigned long int* n)
+unsigned int vbyte_read(FILE* fp, uint4* n)
 {
 	unsigned int ret = 1;
 	unsigned int count = 0;
@@ -54,7 +54,7 @@ unsigned int vbyte_read(FILE* fp, unsigned long int* n)
 	return 0;
 }
 
-unsigned int vbyte_write(FILE* fp, unsigned long int n)
+unsigned int vbyte_write(FILE* fp, uint4 n)
 {
 	unsigned int ret = 1;
 	uint8_t byte;
@@ -88,16 +88,16 @@ unsigned int vbyte_scan(FILE* fp)
 			   latest group by an additional 7 places, since the groups were
 			   effectively stored in reverse order.*/
 			ret++;
-		} else if (ret > sizeof(unsigned long int)) {
-			if (ret == (sizeof(unsigned long int) + 1)
-			        && (byte < (1 << (sizeof(unsigned long int) + 1)))) {
+		} else if (ret > sizeof(uint4)) {
+			if (ret == (sizeof(uint4) + 1)
+			        && (byte < (1 << (sizeof(uint4) + 1)))) {
 				/* its a large, but valid number */
 				return ret;
 			} else {
 				/* we've overflowed */
 
 				/* pretend we detected it as it happened */
-				fseek(fp, - (int)(ret - (sizeof(unsigned long int) + 1)), SEEK_CUR);
+				fseek(fp, - (int)(ret - (sizeof(uint4) + 1)), SEEK_CUR);
 				errno = EOVERFLOW;
 				return 0;
 			}
@@ -110,7 +110,7 @@ unsigned int vbyte_scan(FILE* fp)
 	return 0;
 }
 
-unsigned int vbyte_len(unsigned long int n)
+unsigned int vbyte_len(uint4 n)
 {
 	unsigned int ret = 1;
 	while (n >= 128) {

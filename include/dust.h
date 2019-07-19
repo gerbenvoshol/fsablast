@@ -1,15 +1,13 @@
 #ifndef _dust_
 #define _dust_
 
-struct chunk
-{
+struct chunk {
 	int score;
-    int start;
-    int end;
+	int start;
+	int end;
 };
 
-struct maskRegion
-{
+struct maskRegion {
 	struct maskRegion* next;
 	int from, to;
 };

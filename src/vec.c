@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int vec_init_inplace(unsigned long int initsize, struct vec *v)
+int vec_init_inplace(uint4 initsize, struct vec *v)
 {
 	if ((v->vector = malloc(initsize))) {
 		v->size = initsize;
@@ -34,7 +34,7 @@ int vec_init_inplace(unsigned long int initsize, struct vec *v)
 	}
 }
 
-struct vec* vec_init(unsigned long int initsize)
+struct vec* vec_init(uint4 initsize)
 {
 	struct vec* v = malloc(sizeof(*v));
 
@@ -50,7 +50,7 @@ struct vec* vec_init(unsigned long int initsize)
 	return NULL;
 }
 
-struct vec* vec_reinit(struct vec* v, unsigned long int initsize)
+struct vec* vec_reinit(struct vec* v, uint4 initsize)
 {
 	void* newmem;
 
@@ -118,9 +118,9 @@ unsigned int vec_append(struct vec* dst, const struct vec* src)
 }
 
 /* XXX: names for bitmasks: form bits.h */
-unsigned long int vec_putvbyte(struct vec* v, unsigned long int n)
+uint4 vec_putvbyte(struct vec* v, uint4 n)
 {
-	unsigned long int ret = 1;
+	uint4 ret = 1;
 
 	while (n >= 128) {
 		if ((v->pos >= v->size) && !vec_expand(v, GROWTHFACTOR * v->size + 1)) {
@@ -144,9 +144,9 @@ unsigned long int vec_putvbyte(struct vec* v, unsigned long int n)
 	return ret;
 }
 
-unsigned long int vec_getvbyte(struct vec* v, unsigned long int* n)
+uint4 vec_getvbyte(struct vec* v, uint4* n)
 {
-	unsigned long int ret = 1,
+	uint4 ret = 1,
 	                  count = 0,
 	                  get = 0;
 
@@ -181,9 +181,9 @@ unsigned long int vec_getvbyte(struct vec* v, unsigned long int* n)
 	return 0;
 }
 
-unsigned long int vec_scanvbyte(struct vec* v)
+uint4 vec_scanvbyte(struct vec* v)
 {
-	unsigned long int ret = 1;
+	uint4 ret = 1;
 
 	while ((v->pos < v->len)) {
 		if (!(v->vector[v->pos++] & 0x80)) {
@@ -221,12 +221,12 @@ int vec_eof(const struct vec* v)
 	return (v->pos == v->len);
 }
 
-unsigned long int vec_position(const struct vec* v)
+uint4 vec_position(const struct vec* v)
 {
 	return v->pos;
 }
 
-unsigned long int vec_length(const struct vec* v)
+uint4 vec_length(const struct vec* v)
 {
 	return v->len;
 }
@@ -319,7 +319,7 @@ int vec_cmp(const struct vec *one, const struct vec *two)
 	}
 }
 
-unsigned int vec_vbyte_len(unsigned long int n)
+unsigned int vec_vbyte_len(uint4 n)
 {
 	unsigned int ret = 1;
 	while (n >= 128) {

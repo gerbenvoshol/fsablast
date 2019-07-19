@@ -63,13 +63,13 @@ struct lo_info *get_next_lo_info(struct index_scanner *iscn, struct lo_info *lo_
 	return lo_info;
 }
 
-struct listinfo *get_list_at(struct index_scanner *iscn, struct listinfo *info, long offset)
+struct listinfo *get_list_at(struct index_scanner *iscn, struct listinfo *info, uint4 offset)
 {
 	struct vec *vector;
-	unsigned long num, last_doc = -1;
+	uint4 num, last_doc = -1;
 	int c, d;
 	FILE *idx = iscn->idx_file;
-	unsigned long veclen,
+	uint4 veclen,
 	         numdocs,
 	         occurs,
 	         last_offset;
@@ -89,20 +89,20 @@ struct listinfo *get_list_at(struct index_scanner *iscn, struct listinfo *info, 
 	/* Initialise the info structure if we weren't already given one */
 	if (info == NULL) {
 		info = malloc(sizeof(struct listinfo));
-		info->doc_numbers = malloc(numdocs * sizeof(unsigned long));
-		info->phrase_frequency = malloc(numdocs * sizeof(unsigned long));
-		info->phrase_offsets = malloc(numdocs * sizeof(unsigned long *));
-		memset(info->phrase_offsets, 0, numdocs * sizeof(unsigned long *));
+		info->doc_numbers = malloc(numdocs * sizeof(uint4));
+		info->phrase_frequency = malloc(numdocs * sizeof(uint4));
+		info->phrase_offsets = malloc(numdocs * sizeof(uint4 *));
+		memset(info->phrase_offsets, 0, numdocs * sizeof(uint4 *));
 		info->size = numdocs;
 	}
 
 	/* We may need to enlarge various aspects of the structure if it is not
 	 * big enough to hold the current postings list */
 	if (info->size < numdocs) {
-		info->doc_numbers = realloc(info->doc_numbers, numdocs * sizeof(unsigned long));
-		info->phrase_frequency = realloc(info->phrase_frequency, numdocs * sizeof(unsigned long));
-		info->phrase_offsets = realloc(info->phrase_offsets, numdocs * sizeof(unsigned long *));
-		memset(info->phrase_offsets + info->size, 0, (numdocs - info->size) * sizeof(unsigned long *));
+		info->doc_numbers = realloc(info->doc_numbers, numdocs * sizeof(uint4));
+		info->phrase_frequency = realloc(info->phrase_frequency, numdocs * sizeof(uint4));
+		info->phrase_offsets = realloc(info->phrase_offsets, numdocs * sizeof(uint4 *));
+		memset(info->phrase_offsets + info->size, 0, (numdocs - info->size) * sizeof(uint4 *));
 		info->size = numdocs;
 	}
 
@@ -129,8 +129,8 @@ struct listinfo *get_list_at(struct index_scanner *iscn, struct listinfo *info, 
 		}
 
 		/* Prepare the memory for the appropriate number of offsets */
-		info->phrase_offsets[c] = malloc(info->phrase_frequency[c] * sizeof(unsigned long));
-		memset(info->phrase_offsets[c], 0, info->phrase_frequency[c] * sizeof(unsigned long));
+		info->phrase_offsets[c] = malloc(info->phrase_frequency[c] * sizeof(uint4));
+		memset(info->phrase_offsets[c], 0, info->phrase_frequency[c] * sizeof(uint4));
 
 		/* Read in all the document offsets */
 		last_offset = -1;

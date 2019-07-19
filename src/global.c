@@ -113,7 +113,7 @@ char* global_int8toString(uint8 number)
 	int4 length, count1, count2;
 
 	// Convert integer to string
-	sprintf(string1, "%lu", number);
+	sprintf(string1, "%llu", number);
 	length = strlen(string1);
 
 	// Declare second string large enough to hold number with commas
@@ -155,7 +155,7 @@ void* global_malloc(size_t size)
 
 	newMemory = malloc(size);
 
-    //printf("[%ld]\n", size);
+//    printf("[%d]\n", size);
 
 	/*    if (size > 20000000)
 	    {

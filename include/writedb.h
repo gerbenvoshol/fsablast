@@ -9,31 +9,28 @@ extern uint4 writedb_maximumSequenceLength, writedb_alphabetType, writedb_minimu
 extern uint8 writedb_numberOfLetters;
 extern uint4 writedb_volume, writedb_sequenceCount;
 
-struct edit
-{
+struct edit {
 	uint4 position;
-    unsigned char code;
+	unsigned char code;
 };
 
-struct child
-{
+struct child {
 	unsigned char* sequence;
 	char* description;
 	uint4 descriptionLength;
-    uint4 descriptionLocation;
-    uint4 regionStart;
-    uint4 length;
-    struct edit* edits;
-    uint4 numEdits;
+	uint4 descriptionLocation;
+	uint4 regionStart;
+	uint4 length;
+	struct edit* edits;
+	uint4 numEdits;
 };
 
-struct sequenceData
-{
+struct sequenceData {
 	uint4 sequenceLength;
 	uint4 descriptionStart;
 	uint4 descriptionLength;
 	uint4 encodedLength;
-    unsigned char* sequence;
+	unsigned char* sequence;
 };
 
 // Initialize writing to formatted database

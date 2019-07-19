@@ -3,14 +3,12 @@
 
 extern uint4 postings_numLists;
 
-struct wordLocation
-{
+struct wordLocation {
 	uint4 sequenceNumber;
-    uint4 offset;
+	uint4 offset;
 };
 
-struct finalList
-{
+struct finalList {
 	uint4 numEntries;
 	unsigned char* list;
 };

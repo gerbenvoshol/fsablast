@@ -39,7 +39,7 @@ int4 parameters_mismatchScore = -3;
 int4 parameters_matchScore = 1;
 
 char parameters_wordSize = DEFAULT;
-int4 parameters_T = 10; // TODO: Why does it crash with > 10?
+int4 parameters_T = 11;
 int4 parameters_A = 40;
 char parameters_overlap = 3;
 int2 parameters_startGap = DEFAULT;
@@ -141,7 +141,7 @@ void parameters_processArguments(int4 argc, char* argv[])
 		},
 		{
 			'f', parameters_INT, &parameters_T,
-			"Threshold for extending hits (protein only)", "10"
+			"Threshold for extending hits (protein only)", "11"
 		},
 		{
 			'e', parameters_DOUBLE, &parameters_cutoff,

@@ -203,6 +203,7 @@ void search_protein2hit(struct PSSMatrix PSSMatrix, struct sequenceData* sequenc
 				// If current code is a regular letter
 				if (*address < wordLookupDFA_numCodes) {
 					// Use it
+					//printf("address: %i\n", *address);
 					currentWord = currentBlock[*address];
 					currentGroup = currentGroup->nextGroups + *address;
 				} else {
@@ -219,7 +220,7 @@ void search_protein2hit(struct PSSMatrix PSSMatrix, struct sequenceData* sequenc
 				if (currentWord) {
 					// Calculate subject offset
 					subjectOffset = address - subject;
-
+					//printf("subjectOffset: %i\n", subjectOffset);
 					// If at least one query position, stored at an extenal address
 					queryOffsets = ((uint2*)currentBlock) - currentWord;
 
@@ -231,11 +232,8 @@ void search_protein2hit(struct PSSMatrix PSSMatrix, struct sequenceData* sequenc
 					}
 
 					do {
-						if (queryOffsets == NULL) {
-							fprintf(stderr, "queryOffsets = NULL\n");
-							continue;
-						}
 						queryOffset = *queryOffsets;
+
 #ifndef NO_STAGE2
 						// Calculate the diagonal this hit is on
 						diagonal = subjectOffset - queryOffset;
@@ -279,7 +277,7 @@ void search_protein2hit(struct PSSMatrix PSSMatrix, struct sequenceData* sequenc
 						}
 #endif
 
-						queryOffsets++;				
+						queryOffsets++;
 						blast_numHits++;
 					} while (*queryOffsets);
 				}

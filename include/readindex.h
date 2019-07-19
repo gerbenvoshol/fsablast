@@ -1,8 +1,8 @@
 /** @file
  *
  * Functions designed for sequentially extracting postings lists from lucy
- * index files, primarily designed for use with the spex indices from the 
- * deco algorithm. 
+ * index files, primarily designed for use with the spex indices from the
+ * deco algorithm.
  *
  * Yaniv Bernstein 2004
  */
@@ -14,32 +14,29 @@
 
 /** Data structure for storing buffered file pointers, makes it convenient
  * when extracting vectors */
-struct index_scanner
-{
-   FILE *idx_file; /**< A pointer to the idx file for this index */
-   FILE *offsets; /**< A pointer to the file containing long lists and their offsets */
+struct index_scanner {
+	FILE *idx_file; /**< A pointer to the idx file for this index */
+	FILE *offsets; /**< A pointer to the file containing long lists and their offsets */
 };
 
-struct lo_info
-{
-   unsigned long size;
-   long offset;
+struct lo_info {
+	uint4 size;
+	uint4 offset;
 };
 
 /** Stores relevant information from an extracted phrase */
-struct listinfo
-{
-   /** Pointer to the current phrase */
-   char *phrase;
-   /** The number of documents the phrase occurs in */
-   unsigned long doc_count;
-   unsigned long size;
-   /** Array of the document numbers the phrase occurs in */
-   unsigned long *doc_numbers;
-   /** Array of the frequency of the phrase's occurrence in each document */
-   unsigned long *phrase_frequency;
-   /** Array of offsets for each phrase, for each document that the phrase occurs in */
-   unsigned long **phrase_offsets;
+struct listinfo {
+	/** Pointer to the current phrase */
+	char *phrase;
+	/** The number of documents the phrase occurs in */
+	uint4 doc_count;
+	uint4 size;
+	/** Array of the document numbers the phrase occurs in */
+	uint4 *doc_numbers;
+	/** Array of the frequency of the phrase's occurrence in each document */
+	uint4 *phrase_frequency;
+	/** Array of offsets for each phrase, for each document that the phrase occurs in */
+	uint4 **phrase_offsets;
 };
 
 
@@ -51,7 +48,7 @@ struct index_scanner *open_index(char *index_prefix);
 /** Return a phrase_info data structure for the next phrase in the index */
 struct listinfo *get_next_list(struct index_scanner *iscn, struct listinfo *info);
 
-struct listinfo *get_list_at(struct index_scanner *iscn, struct listinfo *info, long offset);
+struct listinfo *get_list_at(struct index_scanner *iscn, struct listinfo *info, uint4 offset);
 
 struct listinfo *get_next_biglist(struct index_scanner *iscn, struct listinfo *info);
 

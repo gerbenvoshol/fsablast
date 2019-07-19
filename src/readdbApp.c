@@ -30,7 +30,7 @@ int4 main(int4 argc, char* argv[])
 	printf("Number of clusters = %u\n", readdb_numberOfClusters);
 	printf("Number of sequences = %u\n", readdb_numberOfSequences);
 	printf("Number of volumes = %u\n", readdb_numberOfVolumes);
-	printf("Total number of letters = %lu\n", readdb_numberOfLetters);
+	printf("Total number of letters = %llu\n", readdb_numberOfLetters);
 	printf("Length of longest sequence = %u\n", readdb_longestSequenceLength);
 	printf("Alphabet type = %s\n", encoding_alphabetTypes[readdb_dbAlphabetType]);
 

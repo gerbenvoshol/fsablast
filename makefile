@@ -15,9 +15,9 @@ LDFLAGS=-lm
 ifeq ($(PLATFORM), Linux)
     CC=gcc
     # Use for production build:
-    CFLAGS=-I$(INC) -O3 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D GZ_SUPPORT
+    CFLAGS=-I$(INC) -O3 -D GZ_SUPPORT
     # Use for debugging:
-    #CFLAGS=-I$(INC) -O3 -D VERBOSE=1 -fsanitize=address -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE
+    #CFLAGS=-I$(INC) -O3 -fsanitize=address -D VERBOSE=1 -Wall -D GZ_SUPPORT
     LDFLAGS=-lm -lz
 endif
 
@@ -25,7 +25,7 @@ endif
 ifeq ($(PLATFORM), Darwin)
     CC=/usr/local/bin/gcc-8
     #CC=gcc
-    CFLAGS=-I$(INC) -O3 -Wall -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D GZ_SUPPORT
+    CFLAGS=-I$(INC) -O3 -Wall -m32 -D_FILE_OFFSET_BITS=64 -D_LARGEFILE64_SOURCE -D GZ_SUPPORT
     #CFLAGS=-I$(INC) -pipe -O2 -no-cpp-precomp -Wno-long-double
     LDFLAGS=-lm -lz
 endif
@@ -68,7 +68,7 @@ fsaformatdb: $(OBJ)/formatdb.o $(OBJFILES)
 fsacreateindex: $(OBJ)/createindex.o $(OBJFILES)
 	$(CC) $(CFLAGS) -o fsacreateindex $(OBJ)/createindex.o $(OBJFILES) $(LDFLAGS) 
 fsareaddb: $(OBJ)/readdbApp.o $(OBJFILES)
-	$(CC) $(CFLAGS) -o fasreaddb $(OBJ)/readdbApp.o $(OBJFILES) $(LDFLAGS) 
+	$(CC) $(CFLAGS) -o fsareaddb $(OBJ)/readdbApp.o $(OBJFILES) $(LDFLAGS) 
 fsachooseWilds: $(OBJ)/chooseWilds.o $(OBJFILES)
 	$(CC) $(CFLAGS) -o fsachooseWilds $(OBJ)/chooseWilds.o $(OBJFILES) $(LDFLAGS) 
 fsadust: $(OBJ)/dustApp.o $(OBJFILES)

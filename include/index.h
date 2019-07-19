@@ -42,27 +42,24 @@ uint4 index_numCoordinates;
 uint4* index_sequencePositions;
 uint4* index_descriptionLocations;
 
-struct indexCoordinate
-{
+struct indexCoordinate {
 	uint4 queryOffset;
-    uint4 subjectOffset;
-    uint4 subjectNumber;
+	uint4 subjectOffset;
+	uint4 subjectNumber;
 };
 
-struct wordList
-{
+struct wordList {
 	unsigned char* offsets;
-    uint4 length;
-    uint4 allocated;
-    uint4 lastOffset;
-    uint4 lastSequenceNumber;
+	uint4 length;
+	uint4 allocated;
+	uint4 lastOffset;
+	uint4 lastSequenceNumber;
 };
 
-struct queryWord
-{
+struct queryWord {
 	uint4 codeword;
-    uint4 queryPosition;
-    char* offsets, *endOffsets;
+	uint4 queryPosition;
+	unsigned char* offsets, *endOffsets;
 };
 
 #endif

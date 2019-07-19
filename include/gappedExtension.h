@@ -4,8 +4,8 @@
 // Build a gapped extension with a trace and nominal score from the seed point4 of an ungapped
 // extension using dynamic programming
 struct gappedExtension* gappedExtension_build(struct ungappedExtension* ungappedExtension,
-                        struct PSSMatrix PSSMatrix, int4 subjectSize, unsigned char* subject,
-                        struct unpackRegion* unpackRegion, int4 dropoff);
+        struct PSSMatrix PSSMatrix, int4 subjectSize, unsigned char* subject,
+        struct unpackRegion* unpackRegion, int4 dropoff);
 
 // Debugging routine
 void gappedExtension_printBeforeRow(int4* row, unsigned char* subject, unsigned char* rowDropoff,

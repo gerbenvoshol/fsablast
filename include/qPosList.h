@@ -1,14 +1,12 @@
 #ifndef _qPosList_
 #define _qPosList_
 
-struct queryPosition
-{
+struct queryPosition {
 	uint2 queryPosition;
-    struct codeword* codewords;
+	struct codeword* codewords;
 };
 
-struct codeword
-{
+struct codeword {
 	int4 codeword;
 	struct codeword* next;
 };

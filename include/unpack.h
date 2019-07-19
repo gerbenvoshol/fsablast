@@ -6,7 +6,7 @@ void unpack_initialize();
 
 // Return the unpack region in the given list that contains the given subject offset
 struct unpackRegion* unpack_selectRegion(struct unpackRegion* unpackRegions, uint4 numUnpackRegions,
-                                         uint4 subjectOffset);
+        uint4 subjectOffset);
 
 // Extend the start of a region if necessary
 void unpack_extendRegionStart(int4 position, struct unpackRegion* unpackRegion);

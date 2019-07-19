@@ -835,9 +835,9 @@ void print_XMLfooter()
 	printf("      <Iteration_stat>\n");
 	printf("        <Statistics>\n");
 	printf("          <Statistics_db-num>%d</Statistics_db-num>\n", readdb_numberOfSequences);
-	printf("          <Statistics_db-len>%lu</Statistics_db-len>\n", statistics_databaseSize);
+	printf("          <Statistics_db-len>%llu</Statistics_db-len>\n", statistics_databaseSize);
 	printf("          <Statistics_hsp-len>%d</Statistics_hsp-len>\n", statistics_lengthAdjust);
-	printf("          <Statistics_eff-space>%lu</Statistics_eff-space>\n", statistics_searchSpaceSize);
+	printf("          <Statistics_eff-space>%llu</Statistics_eff-space>\n", statistics_searchSpaceSize);
 	printf("          <Statistics_kappa>%.3f</Statistics_kappa>\n", statistics_gappedParams.K);
 	printf("          <Statistics_lambda>%.3f</Statistics_lambda>\n", statistics_gappedParams.lambda);
 	printf("          <Statistics_entropy>%.3f</Statistics_entropy>\n", statistics_gappedParams.H);

@@ -117,6 +117,7 @@ int4 main(int4 argc, char* argv[])
 			} else {
 				wordLookupDFA_build(PSSMatrix, encoding_numRegularLetters, parameters_wordSize);
 			}
+			// TODO FIX for conversion 32 to 64 bits
 			//wordLookupDFA_print();
 		}
 
@@ -167,7 +168,7 @@ void blast_search(char* searchDbFile, struct PSSMatrix PSSMatrix, char* query)
 	int4 tickFrequency;
 
 	// Construct sequence filename
-	indexFilename = (char*)global_malloc(strlen(searchDbFile) + 7);
+	indexFilename = (char*)global_malloc(strlen(searchDbFile) + 9);
 	sprintf(indexFilename, "%s.index", searchDbFile);
 
 	// Check if index file exists. If not, disable use of index
@@ -435,8 +436,8 @@ void blast_search(char* searchDbFile, struct PSSMatrix PSSMatrix, char* query)
 		printf("effective length of query: %u\n", statistics_effectiveQuerySize);
 		printf("effective length of database: %s\n",
 		       global_int8toString(statistics_effectiveDatabaseSize));
-		printf("effective search space: %lu\n", statistics_searchSpaceSize);
-		printf("effective search space used: %lu\n", statistics_searchSpaceSize);
+		printf("effective search space: %llu\n", statistics_searchSpaceSize);
+		printf("effective search space used: %llu\n", statistics_searchSpaceSize);
 
 		if (encoding_alphabetType == encoding_protein) {
 			printf("T: %d\n", parameters_T);

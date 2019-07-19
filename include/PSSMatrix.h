@@ -5,7 +5,7 @@ extern unsigned char* PSSMatrix_packedRightMatches;
 extern unsigned char* PSSMatrix_packedLeftMatches;
 extern int2* PSSMatrix_packedRightMatchScores;
 extern int2* PSSMatrix_packedLeftMatchScores;
-extern char* PSSMatrix_packedScore;
+extern unsigned char* PSSMatrix_packedScore;
 
 // Create a PSSM for the given query sequence and score matrix.
 // The PSSMatrix will have length(query) columns and 25 rows

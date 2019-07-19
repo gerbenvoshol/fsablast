@@ -41,5 +41,5 @@ void usage(char *pname);
 void casefold(char *string);
 
 int fcomp(const void *f1, const void *f2);
-   
+
 #endif

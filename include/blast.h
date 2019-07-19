@@ -11,11 +11,11 @@
 #include <ctype.h>
 
 #define int4 int64_t
-#define uint4 uint64_t
+#define uint4 uint32_t
 #define int8 int64_t
 #define uint8 uint64_t
-#define int2 int32_t
-#define uint2 uint32_t
+#define int2 int16_t
+#define uint2 uint16_t
 
 #include "global.h"
 #include "constants.h"

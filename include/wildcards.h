@@ -1,18 +1,16 @@
 #ifndef _wildcards_
 #define _wildcards_
 
-struct clusterWildcard
-{
-	char* letters;
+struct clusterWildcard {
+	unsigned char* letters;
 	uint4 wildCode;
 	int2 scoreMatrixRow[encoding_aaStartWildcards];
-    float averageScore;
+	float averageScore;
 };
 
-struct wild
-{
+struct wild {
 	uint4 code;
-    uint4 count;
+	uint4 count;
 };
 
 #define setbit(i, pos) (i |= (1 << pos))
@@ -32,22 +30,22 @@ void wildcards_initialize();
 void wildcards_printWildcard(uint4 wildcard);
 // Build a scoring row for wildcard candidate and calculate average score
 float wildcards_scoreCandidates(struct wild* wildCandidates, uint4 numWildCandidates,
-                                  struct wild* wilds, uint4 numWilds, float defaultWildscore);
+                                struct wild* wilds, uint4 numWilds, float defaultWildscore);
 // Given a list of wildcard
 struct wild* wildcards_getSubset(struct wild wildCandidate, struct wild* wilds,
-                                   uint4 numWilds, uint4* sizeWildSubset, uint4* numOccurences);
+                                 uint4 numWilds, uint4* sizeWildSubset, uint4* numOccurences);
 // Calculate the average score for aligning a residue to the wildcard candidate
 float wildcards_averageResidueWildMatch(struct wild wildCandidate, struct wild* wilds,
-                                          uint4 numWilds);
+                                        uint4 numWilds);
 // Calculate the average score for aligning residue 'code' with given wildcard candidate
 float wildcards_scoreResidueWildMatch(struct wild wildCandidate, struct wild* wilds,
-                                        uint4 numWilds, uint4 code);
+                                      uint4 numWilds, uint4 code);
 // Join two sets together
 struct wild* wildcards_joinSubset(struct wild* set1, uint4 *size1, struct wild* set2, uint4 size2);
 
 // Remove from set1 any wildcards in set2
 void wildcards_removeSubset(struct wild* set1, uint4 *size1,
-                              struct wild* set2, uint4 size2, uint4* numOccurences);
+                            struct wild* set2, uint4 size2, uint4* numOccurences);
 // Print out the final wildcards
 void wildcards_outputWildcards(char* filename);
 // Read in a set of wildcards
