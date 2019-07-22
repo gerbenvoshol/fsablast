@@ -21,7 +21,7 @@ void unpack_initialize()
 }
 
 // Compare the start offset of two unpack regions
-int4 unpack_compareUnpackRegions(const void* unpackRegion1, const void* unpackRegion2)
+int32 unpack_compareUnpackRegions(const void* unpackRegion1, const void* unpackRegion2)
 {
 	const struct unpackRegion *u1, *u2;
 

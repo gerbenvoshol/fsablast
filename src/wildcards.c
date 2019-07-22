@@ -445,7 +445,7 @@ void wildcards_readWildcards(char* filename)
 		wildcards_clusterWildcards[count].letters = letters;
 
 		// Read details
-		fscanf(file, "%d,[", &(wildcards_clusterWildcards[count].wildCode));
+		fscanf(file, "%ld,[", &(wildcards_clusterWildcards[count].wildCode));
 
 		// Print scores
 		code = 0;
@@ -496,7 +496,7 @@ void wildcards_outputWildcards(char* filename)
 		}
 
 		// Print details
-		fprintf(file, ",%d,[", wildcards_clusterWildcards[count].wildCode);
+		fprintf(file, ",%ld,[", wildcards_clusterWildcards[count].wildCode);
 
 		// Print scores
 		code = 0;

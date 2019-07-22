@@ -419,23 +419,23 @@ void print_gappedAlignmentsFull(char* query, struct PSSMatrix PSSMatrix)
 
 			if (parameters_outputType == parameters_xml) {
 				printf("        <Hit>\n");
-				printf("          <Hit_num>%d</Hit_num>\n", count + 1);
-				printf("          <Hit_id>gnl|BL_ORD_ID|%d</Hit_id>\n", alignment->descriptionLocation);
+				printf("          <Hit_num>%ld</Hit_num>\n", count + 1);
+				printf("          <Hit_id>gnl|BL_ORD_ID|%ld</Hit_id>\n", alignment->descriptionLocation);
 				printf("          <Hit_def>%s</Hit_def>\n", description);
-				printf("          <Hit_accession>%d</Hit_accession>\n", alignment->descriptionLocation);
-				printf("          <Hit_len>%d</Hit_len>\n", alignment->subjectLength);
+				printf("          <Hit_accession>%ld</Hit_accession>\n", alignment->descriptionLocation);
+				printf("          <Hit_len>%ld</Hit_len>\n", alignment->subjectLength);
 				printf("          <Hit_hsps>\n");
 			} else if (parameters_outputType == parameters_tabular) {
 			} else {
 				printf(">%s\n", description);
 				if (!parameters_allClusterMembers && clusterSizes[alignment->cluster] > 1) {
-					printf("          [%d near-identical alignment(s) not displayed]\n",
+					printf("          [%ld near-identical alignment(s) not displayed]\n",
 					       clusterSizes[alignment->cluster] - 1);
 					clusterSizes[alignment->cluster] = 0;
 				}
 //                printf("          Length = %d DescriptionLocation = %d\n\n",
 //                       alignment->subjectLength, alignment->descriptionLocation);
-				printf("          Length = %d\n\n", alignment->subjectLength);
+				printf("          Length = %ld\n\n", alignment->subjectLength);
 			}
 
 			// Get list of gapped extensions
@@ -636,7 +636,7 @@ void print_gappedExtension(struct gappedExtension* gappedExtension, struct PSSMa
 		// First build the query line. Example:
 		// Query:    4 GDESERIVIN-----HQTYRSTLRTLPGTRLAWLAEPDAHSH-----EDYDPRADEFFFD 58
 		strcat(pairwiseAlignment, "Query: ");
-		sprintf(temp2, "%%-%dd ", longestNumber);
+		sprintf(temp2, "%%-%ldd ", longestNumber);
 		sprintf(temp, temp2, queryPosition + 1);
 		strcat(pairwiseAlignment, temp);
 
@@ -656,13 +656,13 @@ void print_gappedExtension(struct gappedExtension* gappedExtension, struct PSSMa
 		temp[count] = '\0';
 		strcat(pairwiseAlignment, temp);
 
-		sprintf(temp, " %d\n", queryPosition);
+		sprintf(temp, " %ld\n", queryPosition);
 		strcat(pairwiseAlignment, temp);
 
 		// Second build the middle line. Example:
 		//             G+ S R+++NVGG +H+    TL  +P TRL  L + + H        DY    +E+FFD
 		charCount = lineStart;
-		sprintf(temp2, "       %%%ds ", longestNumber);
+		sprintf(temp2, "       %%%lds ", longestNumber);
 		sprintf(temp, temp2, "");
 
 		strcat(pairwiseAlignment, temp);
@@ -683,7 +683,7 @@ void print_gappedExtension(struct gappedExtension* gappedExtension, struct PSSMa
 		// Sbjct: 2194 GEVSRRVILNVGGVKHEVLWRTLDRVPHTRLGKLKDCNTHDAIVDLCDDYSLAENEYFFD 2784
 		charCount = lineStart;
 		strcat(pairwiseAlignment, "Sbjct: ");
-		sprintf(temp2, "%%-%dd ", longestNumber);
+		sprintf(temp2, "%%-%ldd ", longestNumber);
 		sprintf(temp, temp2, subjectPosition + 1);
 		strcat(pairwiseAlignment, temp);
 
@@ -708,9 +708,9 @@ void print_gappedExtension(struct gappedExtension* gappedExtension, struct PSSMa
 		strcat(pairwiseAlignment, temp);
 
 		if (reverseComplement) {
-			sprintf(temp, " %d\n\n", subjectPosition + 2);
+			sprintf(temp, " %ld\n\n", subjectPosition + 2);
 		} else {
-			sprintf(temp, " %d\n\n", subjectPosition);
+			sprintf(temp, " %ld\n\n", subjectPosition);
 		}
 
 		strcat(pairwiseAlignment, temp);
@@ -720,18 +720,18 @@ void print_gappedExtension(struct gappedExtension* gappedExtension, struct PSSMa
 	finalText = (char*)global_malloc(numberOfSections * 300 + 300);
 
 	sprintf(finalText,
-	        " Score = %.1f bits (%d), Expect = %s\n Identities = %d/%d (%d%%)",
+	        " Score = %.1f bits (%ld), Expect = %s\n Identities = %ld/%ld (%ld%%)",
 	        gappedExtension->normalizedScore, gappedExtension->nominalScore,
 	        print_eValue2String(gappedExtension->eValue), identities, length,
 	        (int4)(identities * 100 / length));
 
 	if (encoding_alphabetType == encoding_protein) {
-		sprintf(temp, ", Positives = %d/%d (%d%%)", positives, length, (int4)(positives * 100 / length));
+		sprintf(temp, ", Positives = %ld/%ld (%ld%%)", positives, length, (int4)(positives * 100 / length));
 		strcat(finalText, temp);
 	}
 
 	if (gaps > 0) {
-		sprintf(temp, ", Gaps = %d/%d (%d%%)", gaps, length, (int4)(gaps * 100 / length));
+		sprintf(temp, ", Gaps = %ld/%ld (%ld%%)", gaps, length, (int4)(gaps * 100 / length));
 		strcat(finalText, temp);
 	}
 
@@ -799,12 +799,12 @@ void print_XMLheader(char* query, struct PSSMatrix PSSMatrix)
 	} else {
 		printf("  <BlastOutput_program>blastn</BlastOutput_program>\n");
 	}
-	printf("  <BlastOutput_version>FSA-BLAST 1.03</BlastOutput_version>\n");
+	printf("  <BlastOutput_version>FSA-BLAST 1.06</BlastOutput_version>\n");
 	printf("  <BlastOutput_reference>~Reference: Altschul, Stephen F., Thomas L. Madden, Alejandro A. Schaffer, ~Jinghui Zhang, Zheng Zhang, Webb Miller, and David J. Lipman (1997), ~&quot;Gapped BLAST and PSI-BLAST: a new generation of protein database search~programs&quot;,  Nucleic Acids Res. 25:3389-3402.</BlastOutput_reference>\n");
 	printf("  <BlastOutput_db>%s</BlastOutput_db>\n", parameters_subjectDatabaseFile);
 	printf("  <BlastOutput_query-ID>lcl|QUERY</BlastOutput_query-ID>\n");
 	printf("  <BlastOutput_query-def>%s</BlastOutput_query-def>\n", blast_queryDescription);
-	printf("  <BlastOutput_query-len>%d</BlastOutput_query-len>\n", PSSMatrix.length);
+	printf("  <BlastOutput_query-len>%ld</BlastOutput_query-len>\n", PSSMatrix.length);
 	printf("  <BlastOutput_param>\n");
 	printf("    <Parameters>\n");
 	printf("      <Parameters_matrix>%s</Parameters_matrix>\n", parameters_scoringMatrix);
@@ -834,10 +834,10 @@ void print_XMLfooter()
 	printf("      </Iteration_hits>\n");
 	printf("      <Iteration_stat>\n");
 	printf("        <Statistics>\n");
-	printf("          <Statistics_db-num>%d</Statistics_db-num>\n", readdb_numberOfSequences);
-	printf("          <Statistics_db-len>%llu</Statistics_db-len>\n", statistics_databaseSize);
-	printf("          <Statistics_hsp-len>%d</Statistics_hsp-len>\n", statistics_lengthAdjust);
-	printf("          <Statistics_eff-space>%llu</Statistics_eff-space>\n", statistics_searchSpaceSize);
+	printf("          <Statistics_db-num>%ld</Statistics_db-num>\n", readdb_numberOfSequences);
+	printf("          <Statistics_db-len>%lu</Statistics_db-len>\n", statistics_databaseSize);
+	printf("          <Statistics_hsp-len>%ld</Statistics_hsp-len>\n", statistics_lengthAdjust);
+	printf("          <Statistics_eff-space>%lu</Statistics_eff-space>\n", statistics_searchSpaceSize);
 	printf("          <Statistics_kappa>%.3f</Statistics_kappa>\n", statistics_gappedParams.K);
 	printf("          <Statistics_lambda>%.3f</Statistics_lambda>\n", statistics_gappedParams.lambda);
 	printf("          <Statistics_entropy>%.3f</Statistics_entropy>\n", statistics_gappedParams.H);
@@ -880,7 +880,7 @@ void print_tabularGappedExtension(struct gappedExtension* gappedExtension, struc
 
 	// Fields: query id, subject ids, % identity, alignment length, mismatches, gap opens,
 	//         q. start, q. end, s. start, s. end, evalue, bit score
-	printf("%s	%s	%.2f	%d	%d	%d	%d	%d	%d	%d	%s	%.1f\n",
+	printf("%s	%s	%.2f	%ld	%ld	%ld	%ld	%ld	%ld	%ld	%s	%.1f\n",
 	       queryDescription, subjectDescription, 100.0 * (float)identities / (float)length,
 	       length, length - identities, gapopens, trace.queryStart + 1,
 	       gappedExtension->queryEnd + 1, trace.subjectStart + 1, gappedExtension->subjectEnd + 1,
@@ -919,20 +919,20 @@ void print_XMLgappedExtension(struct gappedExtension* gappedExtension, struct PS
 	                         &gapopens, reverseComplement, trace, query, subject, PSSMatrix);
 
 	printf("            <Hsp>\n");
-	printf("              <Hsp_num>%d</Hsp_num>\n", hspNum);
+	printf("              <Hsp_num>%ld</Hsp_num>\n", hspNum);
 	printf("              <Hsp_bit-score>%.3f</Hsp_bit-score>\n", gappedExtension->normalizedScore);
-	printf("              <Hsp_score>%d</Hsp_score>\n", gappedExtension->nominalScore);
+	printf("              <Hsp_score>%ld</Hsp_score>\n", gappedExtension->nominalScore);
 	printf("              <Hsp_evalue>%g</Hsp_evalue>\n", gappedExtension->eValue);
-	printf("              <Hsp_query-from>%d</Hsp_query-from>\n", trace.queryStart + 1);
-	printf("              <Hsp_query-to>%d</Hsp_query-to>\n", gappedExtension->queryEnd + 1);
-	printf("              <Hsp_hit-from>%d</Hsp_hit-from>\n", trace.subjectStart + 1);
-	printf("              <Hsp_hit-to>%d</Hsp_hit-to>\n", gappedExtension->subjectEnd + 1);
+	printf("              <Hsp_query-from>%ld</Hsp_query-from>\n", trace.queryStart + 1);
+	printf("              <Hsp_query-to>%ld</Hsp_query-to>\n", gappedExtension->queryEnd + 1);
+	printf("              <Hsp_hit-from>%ld</Hsp_hit-from>\n", trace.subjectStart + 1);
+	printf("              <Hsp_hit-to>%ld</Hsp_hit-to>\n", gappedExtension->subjectEnd + 1);
 	printf("              <Hsp_query-frame>1</Hsp_query-frame>\n");
 	printf("              <Hsp_hit-frame>1</Hsp_hit-frame>\n");
-	printf("              <Hsp_identity>%d</Hsp_identity>\n", identities);
-	printf("              <Hsp_positive>%d</Hsp_positive>\n", positives);
-	printf("              <Hsp_gaps>%d</Hsp_gaps>\n", gaps);
-	printf("              <Hsp_align-len>%d</Hsp_align-len>\n", trace.length + 1);
+	printf("              <Hsp_identity>%ld</Hsp_identity>\n", identities);
+	printf("              <Hsp_positive>%ld</Hsp_positive>\n", positives);
+	printf("              <Hsp_gaps>%ld</Hsp_gaps>\n", gaps);
+	printf("              <Hsp_align-len>%ld</Hsp_align-len>\n", trace.length + 1);
 	printf("              <Hsp_qseq>%s</Hsp_qseq>\n", queryLine);
 	printf("              <Hsp_hseq>%s</Hsp_hseq>\n", subjectLine);
 	printf("              <Hsp_midline>%s</Hsp_midline>\n", midLine);

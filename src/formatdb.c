@@ -9,7 +9,7 @@
 
 uint4 determineDbAlphabetType(char* filename);
 
-int4 main(int argc, char* argv[])
+int32 main(int argc, char* argv[])
 {
 	char *sequence, *filename;
 	uint4 sequenceLength;
@@ -103,11 +103,11 @@ int4 main(int argc, char* argv[])
 	writedb_close();
 
 	printf("done.\n");
-	printf("%d sequences processed.\n", writedb_sequenceCount);
-	printf("%llu letters processed.\n", writedb_numberOfLetters);
-	printf("%d wildcards encoded.\n", totalWilds);
-	printf("%d volume(s) created.\n", writedb_volume + 1);
-	printf("Longest/shortest sequence was %d/%d letters\n",
+	printf("%ld sequences processed.\n", writedb_sequenceCount);
+	printf("%lu letters processed.\n", writedb_numberOfLetters);
+	printf("%ld wildcards encoded.\n", totalWilds);
+	printf("%ld volume(s) created.\n", writedb_volume + 1);
+	printf("Longest/shortest sequence was %ld/%ld letters\n",
 	       writedb_maximumSequenceLength, writedb_minimumSequenceLength);
 	fflush(stdout);
 

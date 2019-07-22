@@ -915,9 +915,9 @@ void nuGappedScoring_printBeforeRow(int4* row, int2** query, int2** rowDropoff, 
 
 	while (queryPosition < columnDropoff) {
 		if (row == best) {
-			printf("%4d*", *row);
+			printf("%4ld*", *row);
 		} else {
-			printf("%4d ", *row);
+			printf("%4ld ", *row);
 		}
 		row++;
 		queryPosition++;
@@ -953,9 +953,9 @@ void nuGappedScoring_printAfterRow(int4* row, int2** query, int2** rowDropoff, i
 
 	while (queryPosition < rowDropoff) {
 		if (row == best) {
-			printf("%4d*", *row);
+			printf("%4ld*", *row);
 		} else {
-			printf("%4d ", *row);
+			printf("%4ld ", *row);
 		}
 		row++;
 		queryPosition++;

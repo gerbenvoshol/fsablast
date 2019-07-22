@@ -69,7 +69,6 @@ void wordLookupDFA_build(struct PSSMatrix PSSMatrix, int4 numCodes, int4 wordLen
 	wordLookupDFA_numCodes = numCodes;
 	wordLookupDFA_wordLength = wordLength;
 
-	printf("numCodes: %i\nwordLength:%i\n", numCodes, wordLength);
 	// Start with no additional query positions
 	wordLookupDFA_additionalQueryPositions = NULL;
 	wordLookupDFA_numAdditionalQueryPositions = 0;
@@ -77,7 +76,6 @@ void wordLookupDFA_build(struct PSSMatrix PSSMatrix, int4 numCodes, int4 wordLen
 	// Maximum number of entry codewords and group codewords
 	numWords = ceil(pow(numCodes, wordLength));
 	numGroups = ceil(pow(numCodes, wordLength - 1));
-	printf("numWords: %i\nnumGroups:%i\n", numWords, numGroups);
 
 	// Declare memory to construct initial words
 	initialWords = (struct initialWord*)global_malloc(sizeof(struct initialWord)
@@ -571,7 +569,7 @@ void wordLookupDFA_getNeighbours(struct PSSMatrix PSSMatrix, int4 queryPosition,
 	}
 }
 
-int4 wordLookupDFA_compareFrequencyPair(const void* pair1, const void* pair2)
+int32 wordLookupDFA_compareFrequencyPair(const void* pair1, const void* pair2)
 {
 	const struct aaFrequencyGroup *p1, *p2;
 
@@ -774,7 +772,7 @@ void wordLookupDFA_print()
 	while (!codes[wordLength - 1]) {
 		// Construct the codeword for array of codes
 		groupCodeword = wordLookupDFA_getCodeword(codes, wordLength - 1);
-		printf("%i\n", groupCodeword);
+		printf("%li\n", groupCodeword);
 
 		// Get current block
 		currentBlock = wordLookupDFA_blockAddresses[groupCodeword];
@@ -842,10 +840,10 @@ void wordLookupDFA_print()
 		}
 	}
 
-	printf("Total query positions=%d\n", totalQueryPositions);
-	printf("Empty slots=%d/%d (%d%%)\n", totalEmptySlots, numWords,
+	printf("Total query positions=%ld\n", totalQueryPositions);
+	printf("Empty slots=%ld/%ld (%ld%%)\n", totalEmptySlots, numWords,
 	       totalEmptySlots * 100 / numWords);
-	printf("Number of blocks/groups=%d/%d\n", wordLookupDFA_numBlocks, numGroups);
+	printf("Number of blocks/groups=%ld/%ld\n", wordLookupDFA_numBlocks, numGroups);
 }
 
 // Free memory used by the word lookup table

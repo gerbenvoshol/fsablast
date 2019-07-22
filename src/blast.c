@@ -9,7 +9,7 @@
 
 void blast_search(char* searchDbFile, struct PSSMatrix PSSMatrix, char* query);
 
-int4 main(int4 argc, char* argv[])
+int main(int argc, char* argv[])
 {
 	char *query, *queryDescription;
 	unsigned char queryAlphabetType, previousQueryAlphabetType = 10;
@@ -382,13 +382,13 @@ void blast_search(char* searchDbFile, struct PSSMatrix PSSMatrix, char* query)
 
 	if (parameters_outputType != parameters_xml && parameters_outputType != parameters_tabular) {
 		if (readdb_numberOfVolumes > 0) {
-			printf("  Database: %s  (%d volumes)\n", searchDbFile, readdb_numberOfVolumes);
+			printf("  Database: %s  (%ld volumes)\n", searchDbFile, readdb_numberOfVolumes);
 		} else {
 			printf("  Database: %s\n", searchDbFile);
 		}
 		//    printf("    Posted date:  Apr 5, 2004  5:12 PM\n");
 		printf("  Number of letters in database: %s\n", global_int8toString(statistics_databaseSize));
-		printf("  Number of sequences in database:  %u\n", readdb_numberOfSequences);
+		printf("  Number of sequences in database:  %lu\n", readdb_numberOfSequences);
 
 		printf("\nLambda     K      H     (ungapped)");
 		printf("\n %.3f     %.3f  %.3f", statistics_ungappedLambda, statistics_ungappedK,
@@ -405,55 +405,55 @@ void blast_search(char* searchDbFile, struct PSSMatrix PSSMatrix, char* query)
 		if (!parameters_ssearch) {
 			printf("\nNumber of Hits to DB: %s", global_int4toString(blast_numHits));
 		}
-		printf("\nNumber of Sequences: %u\n", readdb_numberOfSequences);
+		printf("\nNumber of Sequences: %lu\n", readdb_numberOfSequences);
 		if (!parameters_ssearch) {
-			printf("Number of extensions: %u\n", blast_numUngappedExtensions);
-			printf("Number of successful extensions: %u\n", blast_numTriggerExtensions);
-			printf("Number of sequences with successful extensions: %u\n", blast_numTriggerSequences);
+			printf("Number of extensions: %lu\n", blast_numUngappedExtensions);
+			printf("Number of successful extensions: %lu\n", blast_numTriggerExtensions);
+			printf("Number of sequences with successful extensions: %lu\n", blast_numTriggerSequences);
 		}
 		if ((parameters_semiGappedScoring || parameters_bytepackedScoring || parameters_tableScoring)
 		        && !parameters_ssearch)
-			printf("Number of sequences with semi-gapped score above cutoff: %u\n",
+			printf("Number of sequences with semi-gapped score above cutoff: %lu\n",
 			       blast_numGoodAlignments);
-		printf("Number of sequences better than %g: %u\n",
+		printf("Number of sequences better than %g: %lu\n",
 		       parameters_cutoff, alignments_finalAlignments->numEntries);
 		if (!parameters_ssearch) {
 			if (parameters_semiGappedScoring || parameters_bytepackedScoring || parameters_tableScoring) {
-				printf("Number of HSP's that attempted semi-gapping: %u\n", blast_numSemiGapped);
+				printf("Number of HSP's that attempted semi-gapping: %lu\n", blast_numSemiGapped);
 			}
-			printf("Number of HSP's that attempted gapping: %u\n", blast_numGapped);
-			printf("Number of HSP's contained and not gapped: %u\n", blast_numExtensionsPruned);
-			printf("Number of HSP's succeeded/attempted join: %u/%u\n",
+			printf("Number of HSP's that attempted gapping: %lu\n", blast_numGapped);
+			printf("Number of HSP's contained and not gapped: %lu\n", blast_numExtensionsPruned);
+			printf("Number of HSP's succeeded/attempted join: %lu/%lu\n",
 			       blast_numSuccessfullyJoined, blast_numAttemptedJoin);
 		}
 		if (blast_numExpandedSequences) {
-			printf("Number of cluster members recreated = %d\n", blast_numExpandedSequences);
+			printf("Number of cluster members recreated = %ld\n", blast_numExpandedSequences);
 		}
-		printf("Total subject bytes copied/unpacked = %d/%d\n", blast_totalCopied, blast_totalUnpacked);
-		printf("length of query: %u\n", statistics_querySize);
+		printf("Total subject bytes copied/unpacked = %ld/%ld\n", blast_totalCopied, blast_totalUnpacked);
+		printf("length of query: %lu\n", statistics_querySize);
 		printf("length of database: %s\n", global_int8toString(statistics_databaseSize));
-		printf("effective HSP length: %u\n", statistics_lengthAdjust);
-		printf("effective length of query: %u\n", statistics_effectiveQuerySize);
+		printf("effective HSP length: %lu\n", statistics_lengthAdjust);
+		printf("effective length of query: %lu\n", statistics_effectiveQuerySize);
 		printf("effective length of database: %s\n",
 		       global_int8toString(statistics_effectiveDatabaseSize));
-		printf("effective search space: %llu\n", statistics_searchSpaceSize);
-		printf("effective search space used: %llu\n", statistics_searchSpaceSize);
+		printf("effective search space: %lu\n", statistics_searchSpaceSize);
+		printf("effective search space used: %lu\n", statistics_searchSpaceSize);
 
 		if (encoding_alphabetType == encoding_protein) {
-			printf("T: %d\n", parameters_T);
-			printf("A: %d\n", parameters_A);
+			printf("T: %ld\n", parameters_T);
+			printf("A: %ld\n", parameters_A);
 		}
-		printf("X1: %d\n", statistics_ungappedNominalDropoff);
-		printf("X2: %d\n", statistics_gappedNominalDropoff);
-		printf("X3: %d\n", statistics_gappedFinalNominalDropoff);
-		printf("S1: %d\n", blast_ungappedNominalTrigger);
-		printf("S2: %d\n", blast_gappedNominalCutoff);
+		printf("X1: %ld\n", statistics_ungappedNominalDropoff);
+		printf("X2: %ld\n", statistics_gappedNominalDropoff);
+		printf("X3: %ld\n", statistics_gappedFinalNominalDropoff);
+		printf("S1: %ld\n", blast_ungappedNominalTrigger);
+		printf("S2: %ld\n", blast_gappedNominalCutoff);
 		if (blast_dynamicGappedNominalCutoff > 0) {
-			printf("S3: %d\n", blast_dynamicGappedNominalCutoff);
+			printf("S3: %ld\n", blast_dynamicGappedNominalCutoff);
 		}
-		printf("F2: %d\n", blast_nominalR1cutoff);
+		printf("F2: %ld\n", blast_nominalR1cutoff);
 		if (blast_dynamicNominalR1cutoff > 0) {
-			printf("F3: %d\n", blast_dynamicNominalR1cutoff);
+			printf("F3: %ld\n", blast_dynamicNominalR1cutoff);
 		}
 
 //    	printf("Total malloced=%s\n", global_int4toString(global_totalMalloc));

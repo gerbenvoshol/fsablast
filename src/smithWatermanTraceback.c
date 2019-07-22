@@ -393,7 +393,7 @@ void smithWatermanTraceback_print(int4* row, int4 subjectLength)
 	row++;
 
 	while (count < subjectLength) {
-		printf("%4d ", *row);
+		printf("%4ld ", *row);
 		row++;
 		count++;
 	}

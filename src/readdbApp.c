@@ -7,7 +7,7 @@
 
 #include "blast.h"
 
-int4 main(int4 argc, char* argv[])
+int32 main(int argc, char* argv[])
 {
 	char *filename;
 	unsigned char *sequence;
@@ -27,11 +27,11 @@ int4 main(int4 argc, char* argv[])
 
 	readdb_open(filename);
 
-	printf("Number of clusters = %u\n", readdb_numberOfClusters);
-	printf("Number of sequences = %u\n", readdb_numberOfSequences);
-	printf("Number of volumes = %u\n", readdb_numberOfVolumes);
-	printf("Total number of letters = %llu\n", readdb_numberOfLetters);
-	printf("Length of longest sequence = %u\n", readdb_longestSequenceLength);
+	printf("Number of clusters = %lu\n", readdb_numberOfClusters);
+	printf("Number of sequences = %lu\n", readdb_numberOfSequences);
+	printf("Number of volumes = %lu\n", readdb_numberOfVolumes);
+	printf("Total number of letters = %lu\n", readdb_numberOfLetters);
+	printf("Length of longest sequence = %lu\n", readdb_longestSequenceLength);
 	printf("Alphabet type = %s\n", encoding_alphabetTypes[readdb_dbAlphabetType]);
 
 	// Initialize codes array
@@ -65,7 +65,7 @@ int4 main(int4 argc, char* argv[])
 //                display = 1;
 
 				if (display) {
-					printf("\n*** Parent with %d children ***\n", numChildren);
+					printf("\n*** Parent with %ld children ***\n", numChildren);
 				}
 
 				// Print cluster
@@ -137,12 +137,12 @@ int4 main(int4 argc, char* argv[])
 		}
 	} while (readdb_nextVolume());
 
-	printf("%d sequences read.\n", readdb_numberOfSequences);
+	printf("%ld sequences read.\n", readdb_numberOfSequences);
 	fflush(stdout);
 
 	while (numClusterSizes > 0) {
 		numClusterSizes--;
-		printf("%d clusters with %d children\n", clusterSizes[numClusterSizes], numClusterSizes);
+		printf("%ld clusters with %ld children\n", clusterSizes[numClusterSizes], numClusterSizes);
 	}
 
 	return 0;

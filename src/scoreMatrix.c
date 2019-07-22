@@ -59,7 +59,7 @@ struct scoreMatrix scoreMatrix_load(char* filename)
 		// Check we didn't max out the buffer
 		if (strlen(line) >= MAXLINELENGTH - 1) {
 			fprintf(stderr, "%s\n", strerror(errno));
-			fprintf(stderr, "Error reading file %s: maximum line length %d exceeded\n",
+			fprintf(stderr, "Error reading file %s: maximum line length %ld exceeded\n",
 			        filename, MAXLINELENGTH);
 			exit(-1);
 		}

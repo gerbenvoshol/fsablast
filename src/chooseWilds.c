@@ -10,7 +10,7 @@
 // Print matrix showing amino acid co-occurence until wildcards
 void chooseWilds_printOccurenceMatrix(struct wild* wilds, uint4 numWilds);
 
-int4 main(int4 argc, char* argv[])
+int32 main(int argc, char* argv[])
 {
 	unsigned char *filename, *readdb_address, *sequence, code, *wildcardsFilename;
 	uint4 descriptionStart = 0, descriptionLength = 0, sequenceLength;

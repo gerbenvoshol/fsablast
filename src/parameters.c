@@ -462,7 +462,7 @@ void parameters_loadDefaults(unsigned char alphabetType)
 
 		// Set matrix name for nucleotide search
 		parameters_scoringMatrix = (char*)global_malloc(sizeof(char) * 30);
-		sprintf(parameters_scoringMatrix, "blastn matrix:%d %d",
+		sprintf(parameters_scoringMatrix, "blastn matrix:%ld %ld",
 		        parameters_matchScore, parameters_mismatchScore);
 
 		// Set values for performing hit detection

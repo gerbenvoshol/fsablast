@@ -20,9 +20,9 @@ uint4 index_wordSize = 12, index_intervalSize = 9;
 #define index_charSize 2
 
 // Compare the two queryWords' codewords
-int4 alignments_compareCodeword(const void* queryWord1, const void* queryWord2);
+int32 alignments_compareCodeword(const void* queryWord1, const void* queryWord2);
 // Compare the two queryWords' queryPositions
-int4 alignments_compareQueryPosition(const void* queryWord1, const void* queryWord2);
+int32 alignments_compareQueryPosition(const void* queryWord1, const void* queryWord2);
 void index_addWord(uint4 codeword, uint4 subjectNumber, uint4 offset);
 uint4 index_generateCodeword(unsigned char* word, uint4 wordSize);
 
@@ -381,7 +381,7 @@ struct indexCoordinate* index_getNextCoordinate()
 }
 
 // Compare the two queryWords' queryPositions
-int4 alignments_compareQueryPosition(const void* queryWord1, const void* queryWord2)
+int32 alignments_compareQueryPosition(const void* queryWord1, const void* queryWord2)
 {
 	const struct queryWord *q1, *q2;
 
@@ -398,7 +398,7 @@ int4 alignments_compareQueryPosition(const void* queryWord1, const void* queryWo
 }
 
 // Compare the two queryWords' codewords
-int4 alignments_compareCodeword(const void* queryWord1, const void* queryWord2)
+int32 alignments_compareCodeword(const void* queryWord1, const void* queryWord2)
 {
 	const struct queryWord *q1, *q2;
 
@@ -452,13 +452,13 @@ void index_print()
 		totalSize += wordList->length;
 
 		if (offsets < endOffsets) {
-			printf("\nCodeword=%u:", codeword);
+			printf("\nCodeword=%lu:", codeword);
 		}
 
 		while (offsets < endOffsets) {
 			vbyte_getVbyte(offsets, (&offsetGap));
 			offset += offsetGap;
-			printf(" %u", offset);
+			printf(" %lu", offset);
 			numOffsets++;
 		}
 
@@ -467,6 +467,6 @@ void index_print()
 		codeword++;
 	}
 
-	printf("\nTotal table size=%d bytes\n", totalSize);
+	printf("\nTotal table size=%ld bytes\n", totalSize);
 }
 

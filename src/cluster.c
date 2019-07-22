@@ -76,7 +76,7 @@ void cluster_simpleClusterSequences(struct sequence* sequences, uint4 numberOfSe
                                     uint4 numberOfLetters);
 void cluster_clusterSequences(struct sequence* sequences, uint4 numSequences,
                               uint4 numberOfLetters, char* filename);
-int4 cluster_compareScore(const void* sequenceMatch1, const void* sequenceMatch2);
+int32 cluster_compareScore(const void* sequenceMatch1, const void* sequenceMatch2);
 // Process a list of word locations and insert/update diagonal entries
 void cluster_processList(struct memSingleBlock *diagonals, struct wordLocation* wordLocations,
                          uint4 numWordLocations);
@@ -127,7 +127,7 @@ void cluster_freePSSM();
 void cluster_spexClusterSequences(struct sequence* sequences, uint4 numberOfSequences,
                                   uint4 numberOfLetters);
 
-int4 main(int4 argc, char* argv[])
+int32 main(int argc, char* argv[])
 {
 	char *filename;
 	unsigned char *sequence;
@@ -145,9 +145,9 @@ int4 main(int4 argc, char* argv[])
 	// Open formatted file for reading
 	readdb_open(filename);
 
-	printf("Number of sequences = %u\n", readdb_numberOfSequences);
-	printf("Total number of letters = %llu\n", readdb_numberOfLetters);
-	printf("Length of longest sequence = %u\n", readdb_longestSequenceLength);
+	printf("Number of sequences = %lu\n", readdb_numberOfSequences);
+	printf("Total number of letters = %lu\n", readdb_numberOfLetters);
+	printf("Length of longest sequence = %lu\n", readdb_longestSequenceLength);
 	printf("Alphabet type = %s\n", encoding_alphabetTypes[readdb_dbAlphabetType]);
 
 	if (readdb_dbAlphabetType != encoding_protein) {
@@ -198,11 +198,11 @@ int4 main(int4 argc, char* argv[])
 	} while (readdb_nextVolume());
 
 	if (sequenceNumber != readdb_numberOfSequences) {
-		fprintf(stderr, "Error: only %d sequences read\n", sequenceNumber);
+		fprintf(stderr, "Error: only %ld sequences read\n", sequenceNumber);
 		exit(-1);
 	}
 
-	printf("%d sequences read.\n", sequenceNumber);
+	printf("%ld sequences read.\n", sequenceNumber);
 	fflush(stdout);
 
 	// Initialize array for storing parents
@@ -217,7 +217,7 @@ int4 main(int4 argc, char* argv[])
 	// Cluster sequences in the collection
 //    cluster_clusterSequences(sequences, sequenceNumber, readdb_numberOfLetters, filename);
 
-	printf("Total bytes saved=%d\n", cluster_calculateSavings());
+	printf("Total bytes saved=%ld\n", cluster_calculateSavings());
 	fflush(stdout);
 
 //    printf("END Total malloced=%s\n", global_int4toString(global_totalMalloc)); fflush(stdout);
@@ -421,7 +421,7 @@ struct edit* cluster_getEdits(struct parent* parent, struct sequence* child, uin
 }
 
 // Compare the two sequence lengths
-int4 cluster_compareSequenceLengths(const void* sequence1, const void* sequence2)
+int32 cluster_compareSequenceLengths(const void* sequence1, const void* sequence2)
 {
 	const struct sequence *a1, *a2;
 
@@ -546,7 +546,7 @@ void cluster_spexClusterSequences(struct sequence* sequences, uint4 numberOfSequ
 			hashCounter2 = hashcounter_new(hashCounterSize, 0);
 		}
 
-		printf("Iteration %d WordLength=%d\n", iteration, wordLength);
+		printf("Iteration %ld WordLength=%ld\n", iteration, wordLength);
 		fflush(stdout);
 		hashcounter_count(hashCounter1, stdout);
 		fflush(stdout);
@@ -732,7 +732,7 @@ void cluster_spexClusterSequences(struct sequence* sequences, uint4 numberOfSequ
 		sequenceNumber++;
 	}
 
-	printf("done. (%d pairs)\n", sequenceMatches->numEntries);
+	printf("done. (%ld pairs)\n", sequenceMatches->numEntries);
 	fflush(stdout);
 
 	// Free memory used to store diagonal matches
@@ -834,7 +834,7 @@ void cluster_simpleClusterSequences(struct sequence* sequences, uint4 numberOfSe
 			}
 			count1++;
 		}
-		printf("length=%d num=%d\n", sequence->length, endGroup - startGroup);
+		printf("length=%ld num=%ld\n", sequence->length, endGroup - startGroup);
 	}
 
 	// Process sequence matches
@@ -901,7 +901,7 @@ void cluster_clusterSequences(struct sequence* sequences, uint4 numberOfSequence
 			sequenceCount++;
 		}
 
-		printf("Was %d\n", numWordLocations);
+		printf("Was %ld\n", numWordLocations);
 		fflush(stdout);
 
 		// Remove any locations refering to already clustered sequences
@@ -916,7 +916,7 @@ void cluster_clusterSequences(struct sequence* sequences, uint4 numberOfSequence
 				//	cluster_printList(wordLocations, numWordLocations);
 
 				numWordLocations = cluster_removeChildren(wordLocations, numWordLocations, sequences);
-				printf("Now %d\n", numWordLocations);
+				printf("Now %ld\n", numWordLocations);
 				fflush(stdout);
 			}
 
@@ -1003,7 +1003,7 @@ void cluster_clusterSequences(struct sequence* sequences, uint4 numberOfSequence
 		sequenceNumber++;
 	}
 
-	printf("END STAGE 3 numSequenceMatches=%d\n", sequenceMatches->numEntries);
+	printf("END STAGE 3 numSequenceMatches=%ld\n", sequenceMatches->numEntries);
 	fflush(stdout);
 
 	// Free memory used to store diagonal matches
@@ -1461,7 +1461,7 @@ void cluster_printList(struct wordLocation* list, uint4 length)
 	uint4 count = 0;
 
 	while (count < length) {
-		printf("[%d,%d] ", list[count].sequenceNumber, list[count].offset);
+		printf("[%ld,%ld] ", list[count].sequenceNumber, list[count].offset);
 		count++;
 	}
 	printf(".\n");
@@ -1496,7 +1496,7 @@ int4 cluster_calculateSavings()
 
 				// CHECK: no child has two parents
 				if (child->parent != parent) {
-					printf("Error sequence %d has multiple parents\n", child->number);
+					printf("Error sequence %ld has multiple parents\n", child->number);
 					exit(-1);
 				}
 
@@ -1508,7 +1508,7 @@ int4 cluster_calculateSavings()
 			bytesSaved += numCharsSaved - parent->length;
 
 			if (numCharsSaved < parent->length) {
-				printf("Error parent length %d with %d children saves negative bytes",
+				printf("Error parent length %ld with %ld children saves negative bytes",
 				       parent->length, parent->numChildren);
 				exit(-1);
 			}
@@ -1524,7 +1524,7 @@ void cluster_printCluster(struct parent* parent)
 	int4 count, childNum, numCharsSaved;
 	struct sequence* child;
 
-	printf("### Parent %d with %d children ###\nParent    ", parent->number, parent->numChildren);
+	printf("### Parent %ld with %ld children ###\nParent    ", parent->number, parent->numChildren);
 	print_singleSequence(parent->sequence, parent->length);
 	printf("\n");
 
@@ -1534,7 +1534,7 @@ void cluster_printCluster(struct parent* parent)
 	while (childNum < parent->numChildren) {
 		child = parent->children[childNum];
 
-		printf("[%7d] ", child->number);
+		printf("[%7ld] ", child->number);
 		// Print spaces to align child to parent
 		count = 0;
 		while (count < child->regionStart) {
@@ -1550,7 +1550,7 @@ void cluster_printCluster(struct parent* parent)
 		numCharsSaved += child->length;
 		childNum++;
 	}
-	printf("%d bytes saved\n", numCharsSaved - parent->length);
+	printf("%ld bytes saved\n", numCharsSaved - parent->length);
 	printf("\n");
 }
 
@@ -1620,7 +1620,7 @@ uint4 cluster_getWildcode(struct parent* parent, uint4 position)
 		count++;
 	}
 
-	fprintf(stderr, "Internal error cluster_getWildcode(%d, %d)\n", parent->number, position);
+	fprintf(stderr, "Internal error cluster_getWildcode(%ld, %ld)\n", parent->number, position);
 	exit(-1);
 }
 
@@ -1773,7 +1773,7 @@ void cluster_addChild(struct parent* parent, struct sequence* child, int4 relati
 				}
 
 				if (wildcardCount >= wildcards_numClusterWildcards) {
-					printf("Error %d >= %d\n", wildcardCount, wildcards_numClusterWildcards);
+					printf("Error %ld >= %d\n", wildcardCount, wildcards_numClusterWildcards);
 					wildcards_printWildcard(wildCode);
 					exit(-1);
 				}
@@ -1800,7 +1800,7 @@ void cluster_addChild(struct parent* parent, struct sequence* child, int4 relati
 }
 
 // Compare the two sequence match's scores
-int4 cluster_compareScore(const void* sequenceMatch1, const void* sequenceMatch2)
+int32 cluster_compareScore(const void* sequenceMatch1, const void* sequenceMatch2)
 {
 	const struct sequenceMatch *a1, *a2;
 

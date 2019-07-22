@@ -408,7 +408,7 @@ void alignments_addFinalAlignment(int4 highestNominalScore, struct alignment* al
 
 // Compare the two alignments' highest scores. Return -1 if alignment1 < alignment2
 // 1 if alignment1 > alignment2 and 0 if they are equal
-int4 alignments_compareFinalAlignments(const void* alignment1,
+int32 alignments_compareFinalAlignments(const void* alignment1,
                                        const void* alignment2)
 {
 	const struct finalAlignment *a1, *a2;
@@ -535,7 +535,7 @@ void alignments_checkForJoin(struct alignment* alignment, struct ungappedExtensi
 }
 
 // Compare the two alignments' description locations scores.
-int4 alignments_compareAlignmentDescriptionLocations(const void* alignment1, const void* alignment2)
+int32 alignments_compareAlignmentDescriptionLocations(const void* alignment1, const void* alignment2)
 {
 	const struct finalAlignment *a1, *a2;
 
@@ -584,7 +584,7 @@ void alignments_printFinalAlignments()
 		finalAlignment = memSingleBlock_getEntry(alignments_finalAlignments, count);
 		alignment = finalAlignment->alignment;
 
-		printf("%3d) Score=%d Dloc=%d\n", count, finalAlignment->highestNominalScore, alignment->descriptionLocation);
+		printf("%3ld) Score=%ld Dloc=%ld\n", count, finalAlignment->highestNominalScore, alignment->descriptionLocation);
 		count++;
 	}
 }
@@ -600,7 +600,7 @@ void alignments_printGoodAlignments()
 		goodAlignment = memSingleBlock_getEntry(alignments_goodAlignments, count);
 		alignment = goodAlignment->alignment;
 
-		printf("%3d) Score=%d Dloc=%d\n", count, goodAlignment->highestNominalScore, alignment->descriptionLocation);
+		printf("%3ld) Score=%ld Dloc=%ld\n", count, goodAlignment->highestNominalScore, alignment->descriptionLocation);
 		count++;
 	}
 }

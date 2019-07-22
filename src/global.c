@@ -79,7 +79,7 @@ char* global_int4toString(uint4 number)
 	int4 length, count1, count2;
 
 	// Convert integer to string
-	sprintf(string1, "%u", number);
+	sprintf(string1, "%lu", number);
 	length = strlen(string1);
 
 	// Declare second string large enough to hold number with commas
@@ -113,7 +113,7 @@ char* global_int8toString(uint8 number)
 	int4 length, count1, count2;
 
 	// Convert integer to string
-	sprintf(string1, "%llu", number);
+	sprintf(string1, "%lu", number);
 	length = strlen(string1);
 
 	// Declare second string large enough to hold number with commas

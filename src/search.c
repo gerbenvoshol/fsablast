@@ -322,9 +322,10 @@ void search_nucleotide(struct PSSMatrix PSSMatrix, struct sequenceData* sequence
 	while (sequenceCount < numSequences) {
 		descriptionLength = sequenceData[sequenceCount].descriptionLength;
 		descriptionStart = sequenceData[sequenceCount].descriptionStart;
+		subject = sequenceData[sequenceCount].sequence;
 		subjectLength = sequenceData[sequenceCount].sequenceLength;
 		encodedLength = sequenceData[sequenceCount].encodedLength;
-		address = subject = sequenceData[sequenceCount].sequence;
+		address = sequenceData[sequenceCount].sequence;
 
 		// New sequence, new possible alignment
 		alignments_currentAlignment = NULL;
@@ -1080,11 +1081,11 @@ void search_nucleotideSsearch(struct PSSMatrix PSSMatrix, struct sequenceData* s
 			if (reverseDpResults.bestScore != dpResults.bestScore ||
 			        dpResults.bestScore != gappedExtension->nominalScore) {
 				fprintf(stderr, "Error: Forward and reverse Smith-Waterman alignment scores do not match\n");
-				fprintf(stderr, "Forward Score=%d End=%d,%d\n", dpResults.bestScore,
+				fprintf(stderr, "Forward Score=%ld End=%ld,%ld\n", dpResults.bestScore,
 				        dpResults.best.queryOffset, dpResults.best.subjectOffset);
-				fprintf(stderr, "Reverse Score=%d End=%d,%d\n", reverseDpResults.bestScore,
+				fprintf(stderr, "Reverse Score=%ld End=%ld,%ld\n", reverseDpResults.bestScore,
 				        reverseDpResults.best.queryOffset, reverseDpResults.best.subjectOffset);
-				fprintf(stderr, "Traceback Score=%d End=%d,%d\n", gappedExtension->nominalScore,
+				fprintf(stderr, "Traceback Score=%ld End=%ld,%ld\n", gappedExtension->nominalScore,
 				        gappedExtension->queryEnd, gappedExtension->subjectEnd);
 //                exit(-1);
 			}

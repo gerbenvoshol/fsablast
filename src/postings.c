@@ -92,7 +92,7 @@ void postings_addEntry(unsigned char* word, uint4 wordLength, uint4 sequenceNumb
 }
 
 // Compare the length of two entries in the hashtable
-int4 postings_compareLists(const void* list1, const void* list2)
+int32 postings_compareLists(const void* list1, const void* list2)
 {
 	const struct finalList *e1, *e2;
 
@@ -230,7 +230,7 @@ void postings_addPosting(struct postingsList* postingsList, uint4 sequenceNumber
 // Print postings lists
 void postings_print()
 {
-	printf("%d lists. Postings size=%.2f Mb\n", postings_numLists, (float)postings_size / 1024.0 / 1024.0);
+	printf("%ld lists. Postings size=%.2f Mb\n", postings_numLists, (float)postings_size / 1024.0 / 1024.0);
 }
 
 // 32-bit hashing function

@@ -1201,9 +1201,9 @@ void fasterGappedExtension_printBeforeRow(int4* row, unsigned char* subject, uns
 
 	while (subjectPosition < columnDropoff) {
 		if (row == best) {
-			printf("%4d*", *row);
+			printf("%4ld*", *row);
 		} else {
-			printf("%4d ", *row);
+			printf("%4ld ", *row);
 		}
 		row++;
 		subjectPosition++;
@@ -1240,9 +1240,9 @@ void fasterGappedExtension_printAfterRow(int4* row, unsigned char* subject, unsi
 
 	while (subjectPosition < rowDropoff) {
 		if (row == best) {
-			printf("%4d*", *row);
+			printf("%4ld*", *row);
 		} else {
-			printf("%4d ", *row);
+			printf("%4ld ", *row);
 		}
 		row++;
 		subjectPosition++;

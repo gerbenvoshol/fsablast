@@ -124,7 +124,7 @@ struct tableBlock {
 };
 
 // Compare two blocks by examining carryOut values for each columnCarry
-int4 tableGappedScoring_compareBlocks(const void* block1,
+int32 tableGappedScoring_compareBlocks(const void* block1,
                                       const void* block2)
 {
 	const struct tableBlock *b1, *b2;
@@ -438,7 +438,7 @@ void tableGappedScoring_printCarry(int4 carry)
 	// Break carry down into 4 values
 	carryPosition = 0;
 	while (carryPosition < 4) {
-		printf("%d ", ((carry % range) + tableGappedScoring_minChange));
+		printf("%ld ", ((carry % range) + tableGappedScoring_minChange));
 		carry /= range;
 		carryPosition++;
 	}

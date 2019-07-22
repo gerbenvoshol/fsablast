@@ -22,7 +22,7 @@ int4 qPosList_maxQPosLists;
 struct initialQPosList* qPosList_initialQPosLists;
 int4 qPosList_numInitialQPosLists;
 
-int4 qPosList_compareList(const void* list1, const void* list2);
+int32 qPosList_compareList(const void* list1, const void* list2);
 void qPosList_processList(int2* queryPositions, int2 numQueryPositions, int4 codeword);
 
 // Initialize for the construction of a new query position list
@@ -81,7 +81,7 @@ void qPosList_print()
 	while (listCount < qPosList_numQPosLists) {
 		list = qPosList_qPosLists + listCount;
 
-		printf("%d) ", listCount);
+		printf("%ld) ", listCount);
 		fflush(stdout);
 
 		// Traverse in reverse order and print elements
@@ -117,7 +117,7 @@ void qPosList_addList(int2* queryPositions, int2 numQueryPositions, int4 codewor
 // Compare the two initial query position list lengths.
 // Return 1 if list1 length > list2 length
 // -1 if list1 length < list2 length and 0 if they are equal
-int4 qPosList_compareInitialList(const void* list1, const void* list2)
+int32 qPosList_compareInitialList(const void* list1, const void* list2)
 {
 	struct initialQPosList *l1, *l2;
 
@@ -291,7 +291,7 @@ void qPosList_processList(int2* queryPositions, int2 numQueryPositions, int4 cod
 
 // Compare the two query position list lengths. Return 1 if list1 length > list2 length
 // -1 if list 1 length < list 2 length and 0 if they are equal
-int4 qPosList_compareList(const void* list1, const void* list2)
+int32 qPosList_compareList(const void* list1, const void* list2)
 {
 	const struct memSingleBlock *l1, *l2;
 

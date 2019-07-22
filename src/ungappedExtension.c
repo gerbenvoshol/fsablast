@@ -718,7 +718,7 @@ struct coordinate ungappedExtension_findProteinSeed(struct ungappedExtension* un
 // Print details of an ungapped extension (for debugging purposes)
 void ungappedExtension_print(struct ungappedExtension* extension)
 {
-	printf("Ungapped extension %d,%d to %d,%d score=%d status=%d seed=%d,%d\n",
+	printf("Ungapped extension %ld,%ld to %ld,%ld score=%ld status=%d seed=%ld,%ld\n",
 	       extension->start.queryOffset, extension->start.subjectOffset,
 	       extension->end.queryOffset, extension->end.subjectOffset,
 	       extension->nominalScore, extension->status,
@@ -760,7 +760,7 @@ struct ungappedExtension* ungappedExtension_simpleScoring(
 	// Correct for extra decrement
 	start++;
 
-	printf("\n%d to %d Dist=%d Score=%d\n", offset1, start, offset1 - start, ungappedExtension_bestScore);
+	printf("\n%ld to %ld Dist=%ld Score=%ld\n", offset1, start, offset1 - start, ungappedExtension_bestScore);
 	/*
 		// Starting at right/last hit position again
 		queryPosition = queryHit + 1;

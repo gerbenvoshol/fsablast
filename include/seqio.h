@@ -81,14 +81,14 @@ void seqfclose(SEQFILE *sfp);
 
 int seqfread(SEQFILE *sfp, int flag);
 
-char *seqfgetseq(SEQFILE *sfp, int *length_out, int newbuffer);
-char *seqfgetrawseq(SEQFILE *sfp, int *length_out, int newbuffer);
-char *seqfgetentry(SEQFILE *sfp, int *length_out, int newbuffer);
+char *seqfgetseq(SEQFILE *sfp, size_t *length_out, int newbuffer);
+char *seqfgetrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer);
+char *seqfgetentry(SEQFILE *sfp, size_t *length_out, int newbuffer);
 SEQINFO *seqfgetinfo(SEQFILE *sfp, int newbuffer);
 
-char *seqfsequence(SEQFILE *sfp, int *length_out, int newbuffer);
-char *seqfrawseq(SEQFILE *sfp, int *length_out, int newbuffer);
-char *seqfentry(SEQFILE *sfp, int *length_out, int newbuffer);
+char *seqfsequence(SEQFILE *sfp, size_t *length_out, int newbuffer);
+char *seqfrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer);
+char *seqfentry(SEQFILE *sfp, size_t *length_out, int newbuffer);
 SEQINFO *seqfinfo(SEQFILE *sfp, int newbuffer);
 SEQINFO *seqfallinfo(SEQFILE *sfp, int newbuffer);
 
@@ -1612,7 +1612,7 @@ int seqfread(SEQFILE *sfp, int flag)
  *
  * Returns:  the next entry's sequence.
  */
-char *seqfgetseq(SEQFILE *sfp, int *length_out, int newbuffer)
+char *seqfgetseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
 {
   INTSEQFILE *isfp = (INTSEQFILE *) sfp;
 
@@ -1653,7 +1653,7 @@ char *seqfgetseq(SEQFILE *sfp, int *length_out, int newbuffer)
  *
  * Returns:  the next entry's raw sequence.
  */
-char *seqfgetrawseq(SEQFILE *sfp, int *length_out, int newbuffer)
+char *seqfgetrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
 {
   INTSEQFILE *isfp = (INTSEQFILE *) sfp;
 
@@ -1693,7 +1693,7 @@ char *seqfgetrawseq(SEQFILE *sfp, int *length_out, int newbuffer)
  *
  * Returns:  the text of the next entry.
  */
-char *seqfgetentry(SEQFILE *sfp, int *length_out, int newbuffer)
+char *seqfgetentry(SEQFILE *sfp, size_t *length_out, int newbuffer)
 {
   INTSEQFILE *isfp = (INTSEQFILE *) sfp;
 
@@ -1770,7 +1770,7 @@ SEQINFO *seqfgetinfo(SEQFILE *sfp, int newbuffer)
  *
  * Returns:  the current entry's sequence.
  */
-char *intseqf_seq(SEQFILE *sfp, int *length_out, int newbuffer,
+char *intseqf_seq(SEQFILE *sfp, size_t *length_out, int newbuffer,
                   int rawseqflag, char *fnname)
 {
   int status;
@@ -1850,10 +1850,10 @@ char *intseqf_seq(SEQFILE *sfp, int *length_out, int newbuffer,
   }
 }
 
-char *seqfsequence(SEQFILE *sfp, int *length_out, int newbuffer)
+char *seqfsequence(SEQFILE *sfp, size_t *length_out, int newbuffer)
 {  return intseqf_seq(sfp, length_out, newbuffer,
                       GETSEQ_SEQUENCE, "seqfsequence");  }
-char *seqfrawseq(SEQFILE *sfp, int *length_out, int newbuffer)
+char *seqfrawseq(SEQFILE *sfp, size_t *length_out, int newbuffer)
 {  return intseqf_seq(sfp, length_out, newbuffer,
                       GETSEQ_RAWSEQ, "seqfrawseq");  }
 
@@ -1871,7 +1871,7 @@ char *seqfrawseq(SEQFILE *sfp, int *length_out, int newbuffer)
  *
  * Returns:  the current entry's text.
  */
-char *seqfentry(SEQFILE *sfp, int *length_out, int newbuffer)
+char *seqfentry(SEQFILE *sfp, size_t *length_out, int newbuffer)
 {
   int len;
   char *buffer;
@@ -2717,7 +2717,8 @@ int seqfwrite(SEQFILE *sfp, char *seq, int seqlen, SEQINFO *info)
  */
 int seqfconvert(SEQFILE *sfpin, SEQFILE *sfpout)
 {
-  int seqlen, status;
+  size_t seqlen;
+  int status;
   char *seq;
   SEQINFO *info;
   INTSEQFILE *isfpin, *isfpout;
@@ -5684,7 +5685,7 @@ static int basic_read(INTSEQFILE *isfp, int flag)
   if (status == STATUS_OK) {
     isfp->fp_entrystart = line;
 
-    /* The entire irst line is the header line */
+    /* The entire first line is the header line */
     if ((format == FORMAT_FASTA) || (format == FORMAT_FASTQ)) {
       descr_line = line - isfp->fp_entrystart;
       descr_end = end - isfp->fp_entrystart;
@@ -11167,6 +11168,8 @@ static void parse_oneline(INFO *info, char *start, char *end, int info_flag)
 {
   int i, flag, alphabet, tseqflag, num1, num2, allflag;
   char *s, *t, *alphastart, *alphaend;
+  char *orig_start = start;
+  char *orig_end = end;
 
   if (end == NULL)
     for (end=start; *end; end++)    
@@ -11373,7 +11376,7 @@ static void parse_oneline(INFO *info, char *start, char *end, int info_flag)
   }
 
   if (allflag || info_flag == SEQINFO_DESCRIPTION) {
-    add_description(info, start, end);
+    add_description(info, orig_start, orig_end);
     if (tseqflag)
       add_description(info, "(tentative sequence)", NULL);
   }
@@ -12087,7 +12090,7 @@ static struct {
 static int embl_getinfo(INTSEQFILE *isfp, char *entry, int len, int flag)
 {
   int alpha, period, count, os_flag, status, allflag;
-  char *s, *t, *line, *end, *lastline, *prefix;
+  char *s = NULL, *t = NULL, *line = NULL, *end = NULL, *lastline = NULL, *prefix = NULL;
   INFO info;
 
   if (!mystreq(entry, 'I', "ID   ")) {

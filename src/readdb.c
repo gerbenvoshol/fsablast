@@ -69,7 +69,7 @@ void readdb_open(char* filename)
 	// Read database statistics
 	vbyte_getVbyte(readdb_data, &databaseVersion);
 	if (databaseVersion != constants_databaseVersion) {
-		fprintf(stderr, "Error: Invalid formatted database version %d. ", databaseVersion);
+		fprintf(stderr, "Error: Invalid formatted database version %ld. ", databaseVersion);
 		fprintf(stderr, "Current supported version is %d.\n", constants_databaseVersion);
 		fprintf(stderr, "Use formatdb tool to reformat database to version %d.\n",
 		        constants_databaseVersion);
@@ -132,7 +132,7 @@ int readdb_nextVolume()
 	readFile_close(readdb_readSequences);
 
 	// Open next volume
-	sprintf(readdb_sequenceFilename, "%s.sequences%d", readdb_filename, readdb_volume);
+	sprintf(readdb_sequenceFilename, "%s.sequences%ld", readdb_filename, readdb_volume);
 	readdb_readSequences = readFile_open(readdb_sequenceFilename);
 	readdb_sequences = (unsigned char*)readdb_readSequences.address;
 
